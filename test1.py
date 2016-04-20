@@ -14,18 +14,30 @@ announcements_menu = {}
 discussion_menu = {}
 
 def menu_execute(x):
-	cur.execute("SELECT header, price FROM %s ORDER BY timestamp DESC LIMIT 4"), (x)
+	cur.execute("SELECT fslid, header, price, FROM %s ORDER BY timestamp DESC LIMIT 4"), (x) #might need to adjust format of timestamp to make ordering work. also will need to replace "fslid" w/ value for all listings
 	cur.fetchall()
 	#FORMATTING GOES HERE
 	#PRINT LIMITING THAT KEEPS RESPONSE TO 160-CHARACTER PAGES GOES HERE (WRITE EXPRESSION TO SUBSTITUTE FOR 4?^)
 	#NEED TO FIGURE OUT HOW TO ASSIGN LISTING NUMBERS TO SQL QUERY
+	menu_execute_input = raw_input("Reply with listing id to view a listing and 'post' to post a new listing.") #see previous note
+	if menu_execute_input == 'post':
+		new_listing_add(activelist)
+	cur.execute("SELECT menu_execute_input FROM activelist;") #need to make listing id the primary key. also need to verify that this method will work for returning individual entry.
+
+
+def nlidfunction(activelist):
+	cur.execute("SELECT COUNT(*) FROM activelist;")
+	fetch_count_raw = str(cur.fetchall()) #should this be .fetchlast() instead?
+	new_fetch_count_raw1 = fetch_count_raw.replace("L,)]", "")
+	new_fetch_count = new_fetch_count_raw1.replace("[(", "")
+	nlid = int(new_fetch_count)+1
 
 def new_listing_add(activelist):
-	header_text = raw_input("In 20 chaacters or less, please describe, 'What do you want to list?'")
-	if len(header_text) > 20:
+	header_text = raw_input("In 20 characters or less, please describe, 'What do you want to list?'")
+	if len(header_input) > 20:
 		print "Your entry exceeded the 20-character limit. The following is the first 20 characters of your entry: "+header_text[:20]
 		header_text = raw_input("In 20 chaacters or less, please describe, 'What do you want to list?'")
-	price = raw_input("How much will you sell it for?")
+	price_input = raw_input("How much will you sell it for?")
 	if integertest(price) == false or len(price) > 6:
 		print "Your price entry was either not a number or exceeded the maximum length of 6 chacacters. The following is the first 6 characters of your entry: "+price[:6]
 		price = raw_input("How much will you sell it for?")
@@ -36,21 +48,11 @@ def new_listing_add(activelist):
 
 	cur. execute(
 		"""INSERT INTO %s (%s, %s, %s, %s, %s, %s) 
-		VALUES (%s, %s, %s, %s, %s, %s);""", (activelist, nlidfunction(activelist), header_text, price, listing_description, getuserid(), now))
+		VALUES (%s, %s, %s, %s, %s, %s);""", (activelist, fslid, header, price, description, user_id, timestamp, nlidfunction(activelist), header_input, price_input, listing_description, getuserid(), now)
 	conn.commit()
 
-def nlidfunction(activelist):
-	cur.execute("SELECT COUNT(*) FROM activelist;")
-	fetch_count_raw = str(cur.fetchall()) #should this be .fetchlast() instead?
-	new_fetch_count_raw1 = fetch_count_raw.replace("L,)]", "")
-	new_fetch_count = new_fetch_count_raw1.replace("[(", "")
-	nlid = int(new_fetch_count)+1
-
-
-def get_userid(): #comes from texting api
-
-
-
+def get_userid(phone_number):
+	cur.execute("SELECT") #comes from texting api
 
 	cur.execute(
 		"""INSERT INTO users_list (id, phone_number, carrier, jointime) 
@@ -76,12 +78,13 @@ def new_user():
 	
 	new_user_phone = raw_input("Welcome! Enter your phone number: ")
 	if integertest(new_user_phone) == False or len(str(new_user_phone)) != 10:
-		print "Number not recognized. Please enter your 10-digit phone number."
+		print "Number not recognized or did not contain 10 digits."
 		new_user()
 	else:
 		new_user_phone_check = True 
 		print "Your phone number was recorded as "+new_user_phone+", thanks!"
 	
+	def carrier_entry():
 	new_user_carrier = raw_input("Which carrier do you use? Reply '1' for ATT '2' for Verizon. ")
 	if int(new_user_carrier) == 1:
 		new_user_carrier_check = True
@@ -94,21 +97,8 @@ def new_user():
 	else:
 		if int(new_user_carrier) != 1 or 2:
 			print "Input not recognized. Please reply '1' if your wireless carrier is ATT and '2' if your wireless carrier is Verizon."
-			new_user()
+			carrier_entry()
 
-	#int(new_user_carrier) != 1 or 2:
-	#	print "Input not recognized. Please reply '1' if your wireless carrier is ATT and '2' if your wireless carrier is Verizon."
-	#	new_user()
-	#else:
-	#	if new_user_carrier == 1:
-	#		new_user_carrier_check = True
-	#		new_user_carrier_string = "ATT" 
-	#		print "Your carrier was recorded as "+new_user_carrier_string+". Thanks!"
-	#	elif new_user_carrier == 2:
-	#		new_user_carrier_check = True
-	#		new_user_carrier_string = "Verizon"
-	#		print "Your carrier was recorded as "+new_user_carrier_string+". Thanks!"
-	
 	if 	new_user_phone_check == True and new_user_carrier_check == True:
 		cur.execute("SELECT COUNT(*) FROM users_list;")
 		fetch_count_raw = str(cur.fetchall()) #should this be .fetchlast() instead?
@@ -125,14 +115,6 @@ def new_user():
 		VALUES (%s, %s, %s, %s);""",
 		(new_user_id, new_user_phone, new_user_carrier_string, new_user_jointime))
 	conn.commit()
-
-
-#>>> cur.execute(
-#...     """INSERT INTO some_table (an_int, a_date, a_string)
-#...         VALUES (%s, %s, %s);""",
-#...     (10, datetime.date(2005, 11, 18), "O'Reilly"))
-
-
 
 def menus():
 	top_menu = raw_input("Reply: '1' For sale, '2' Wanted, '3' Jobs, '4' Announcements, '5' Discussion.")
