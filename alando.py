@@ -1,6 +1,3 @@
-#need to figure out a way to update user loc within postresql logic
-
-
 #import sqlite3
 from datetime import datetime
 
@@ -12,26 +9,62 @@ cur = conn.cursor()
 now = datetime.now()
 
 
-phone_number = '123456'
+input_phone_numr = '123456'
 while True:
 	text = raw_input('')
-	process_text(phone_number, text)
+	process_text(input_phone_num, text)
 
-class user(object):
-	def __init__(self, user_id, phone_num, carrier, language, jointime, loc, pos):
+
+class Time(object):
+	def __init__(self, more)
+		self.more = more
+
+
+
+class User(object):
+	def __init__(self, user_id, phone_num, carrier, language, jointime, loc, pos, time):
 		self.user_id = user_id 
 		self.phone_num = phone_num #searches for number, if no number is found, new user is initiated. if user is found 
-
-		cur.execute(
-			"""SELECT user_id FROM users_list WHERE phone_num = input_phone_num;""")
-		cur.fetchall()
-
-
 		self.carrier = carrier
 		self.language = language
 		self.jointime = jointime
 		self.loc = loc
 		self.pos = pos
+		self.acttime = acttime #figure out how to insert time object (time since last activity)
+
+
+	def getuser_id(self):
+		return self.user_id
+
+	def finduser_id(self, input_phone_num):
+		#need to implement sqlalchemy
+		SQL = """SELECT user_id FROM users_list WHERE phone_num = %s;"""
+		data = input_phone_num
+		cur.execute(SQL, data)
+		info = cur.fetchall()
+		return info
+
+	def getphone_num(self):
+		return self.getphone_num
+
+	def getcarrier(self):
+		return self.carrier
+
+	def getlanguage(self):
+		return self.language
+
+	def getjointime(self):
+		return self.jointime
+
+	def getloc(self):
+		return self.loc
+
+	def getpos(self):
+		return self.pos
+
+	def getacttime(self):
+		return self.acttime
+
 
 
 # global variable class. everytime there is an user interaction, session state needs to be updated. read about flask.
@@ -126,7 +159,7 @@ def new_listing_add(x):
 	cur.execute(
 		"""INSERT INTO listings (ls_type, ls_hdr, ls_pr, ls_des, user_id, 
 			ls_psttime, ls_loc) VALUES (%s, %s, %s, %s, %s, %s, %s);""", (data_type, 
-			hdr_input, pr_input, des_input, psttime_input, pass)); 
+			hdr_input, pr_input, des_input, psttime_input, pass)) 
 	conn.commit()
 
 def new_user_function_input():
