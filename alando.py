@@ -1,73 +1,58 @@
+#sqlite implementation
 #import sqlite3
-from datetime import datetime
-
 #conn= sqlite3.connect(':memory:')
-import psycopg2
+########
+#only psycopg2
+#import psycopg2
+#conn = psycopg2.connect('dbname=alando user=postgres')
+#cur = conn.cursor()
+########
+#psycopg2+sqlalchemy implementation
+from sqlalchemy import create_engine
+engine = create_engine('postgresql+psycopg2://user:postgres@host:5432/alando')
+	#[?key=value&key=value...]) #keyword arguments optional
+from sqlalchemy.ext.declarative import declarative_base
+Base = declarative_base()
+from sqlalchemy import Column, Integer, String, Varchar
+from sqlalchemy.orm import sessionmaker
+Session = sessionmaker(bind = engine)
+session = Session()
 
-conn = psycopg2.connect('dbname=alando user=postgres')
-cur = conn.cursor()
+from datetime import datetime
 now = datetime.now()
 
+class User(Base):
+	__tablename__='users_list'
 
-input_phone_numr = '123456'
+	id = Column(Integer, primary_key=True) # eed Serial for Postgres?
+	phone_num = Column(Varchar)
+	carrier = Column(Integer)
+	language = Column(Integer)
+	jointime = Column(Integer) # test, but Int seems to make most sense
+	loc = Column(Varchar) # format may change region-to-region
+	pos = Column(Integer) # need to assign int values to each menu screen
+	acttime = Column(Integer) # ∆time since last activity
+
+	def __repr__(self):
+		return """<User(phone_num='%s', carrier='%s', language='%s',
+			jointime='%s', loc='%s', pos='%s', acttime='%s')>""" % (
+							self.phone_num, self.carrier, self.language
+							self.jointime, self.loc, self.pos, self.acttime)
+
+Base.metadata.create_all(engine)
+
+input_phone_numr = #from Plivo
 while True:
 	text = raw_input('')
 	process_text(input_phone_num, text)
 
+session.query(User).filter_by(phone_num='%s').first() % (input_phone_num)
+# ^search db to see if phone_num is already listed.
+# if search returns null, call new_user_funtion_input()
+# else, call top_menu_function
 
-class Time(object):
-	def __init__(self, more)
-		self.more = more
-
-
-
-class User(object):
-	def __init__(self, user_id, phone_num, carrier, language, jointime, loc, pos, time):
-		self.user_id = user_id 
-		self.phone_num = phone_num #searches for number, if no number is found, new user is initiated. if user is found 
-		self.carrier = carrier
-		self.language = language
-		self.jointime = jointime
-		self.loc = loc
-		self.pos = pos
-		self.acttime = acttime #figure out how to insert time object (time since last activity)
-
-
-	def getuser_id(self):
-		return self.user_id
-
-	def finduser_id(self, input_phone_num):
-		#need to implement sqlalchemy
-		SQL = """SELECT user_id FROM users_list WHERE phone_num = %s;"""
-		data = input_phone_num
-		cur.execute(SQL, data)
-		info = cur.fetchall()
-		return info
-
-	def getphone_num(self):
-		return self.getphone_num
-
-	def getcarrier(self):
-		return self.carrier
-
-	def getlanguage(self):
-		return self.language
-
-	def getjointime(self):
-		return self.jointime
-
-	def getloc(self):
-		return self.loc
-
-	def getpos(self):
-		return self.pos
-
-	def getacttime(self):
-		return self.acttime
-
-
-
-# global variable class. everytime there is an user interaction, session state needs to be updated. read about flask.
+# from clark -> global variable class. everytime there is an user interaction,
+# session state needs to be updated. read about flask.
 
 def integertest(x):
 	try:
@@ -106,7 +91,7 @@ def top_menu_function():
 			return data_type = 4
 		break
 
-def menu_execute(data_type): #need to test listing length. #randomize
+def menu_execute(data_type): # need to test listing length. #randomize
 	user.pos = str(data_type)
 	cur.execute(
 		"""SELECT ls_id, ls_hdr, ls_pr, FROM listings WHERE ls_type == %s 
