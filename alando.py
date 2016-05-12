@@ -14,7 +14,7 @@ import psycopg2
 import urlparse
 
 urlparse.uses_netloc.append("postgres")
-url = urlparse.urlparse(os.environ["DATABASE_URL"])
+url = urlparse.urlparse(os.environ["https://git.heroku.com/heroku-postgres-4ba0b50c.git"])
 
 conn = psycopg2.connect(
     database=url.path[1:],
