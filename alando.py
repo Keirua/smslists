@@ -7,7 +7,26 @@
 #conn = psycopg2.connect('dbname=alando user=postgres')
 #cur = conn.cursor()
 ########
+# heroku db settings
+
+import os
+import psycopg2
+import urlparse
+
+urlparse.uses_netloc.append("postgres")
+url = urlparse.urlparse(os.environ["DATABASE_URL"])
+
+conn = psycopg2.connect(
+    database=url.path[1:],
+    user=url.username,
+    password=url.password,
+    host=url.hostname,
+    port=url.port
+)
+
 #psycopg2+sqlalchemy implementation
+
+
 from sqlalchemy import create_engine
 engine = create_engine('postgresql+psycopg2://user:postgres@host:5432/alando')
 	#[?key=value&key=value...]) #keyword arguments optional
