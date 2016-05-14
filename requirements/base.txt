@@ -1,0 +1,22 @@
+# Common base requirements shared by all environments
+
+psycopg2==2.6.1
+bcrypt==2.0.0
+Django==1.9.6
+
+#django-model-utils==2.4
+#django-forms-bootstrap==3.0.1
+
+#enum34
+#pytz
+#raven
+
+#django-settings-context-processor==0.2
+#django-admin-decorators==0.1
+
+# Django REST framework
+#djangorestframework==2.4.3
+#drf-extensions==0.2.6
+
+#django-redis==4.3.0
+#redis==2.10.5
