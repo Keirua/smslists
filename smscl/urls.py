@@ -7,14 +7,14 @@ admin.autodiscover()
 
 def bad(request):
     """ Simulates a server error """
-    1 / 0
+    1 / 0 #what does this mean
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'smscl.views.home', name='home'),
+    # url(r'^$', 'smscl.views.home', name='home'), #what is name for?
     # url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    #url(r'^', include(smscl.apps.main.urls)),
+    url(r'^topmenu/', include('smscl.topmenu.urls')),
     url(r'^bad/$', bad),
 )
 

@@ -17,6 +17,9 @@ import sys
 
 from django.core.urlresolvers import reverse_lazy
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 # TODO: move this into a separate file, probably in libs
 def _apply(fn,x,times,):
     if times > 1:
@@ -50,18 +53,27 @@ MANAGERS = ADMINS
 
 ########## DATABASE CONFIGURATION
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
+
 DATABASES = {
-    # Sample settings for Postgresql. The actual settings should live in the environment specific
-    #  files.
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'database_name',
-        'USER': 'user_name',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+
+#DATABASES = {
+    # Sample settings for Postgresql. The actual settings should live in the environment specific
+    #  files.
+#    'default': {
+#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#        'NAME': 'database_name',
+#        'USER': 'user_name',
+#        'PASSWORD': 'password',
+#        'HOST': 'localhost',
+#        'PORT': '',
+#    }
+#}
 ########## END DATABASE CONFIGURATION
 
 ########## CACHE CONFIGURATION
@@ -147,6 +159,7 @@ INSTALLED_APPS = (
 
     # Add local apps here: (note that only the last element is used as the 'app name'!)
     'smscl.apps.main',
+    'topmenu.apps.main' #is topmenu in the correct location?
 
 )
 ########## END APP CONFIGURATION
