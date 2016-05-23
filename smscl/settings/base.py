@@ -159,7 +159,7 @@ INSTALLED_APPS = (
 
     # Add local apps here: (note that only the last element is used as the 'app name'!)
     'smscl.apps.main',
-    'topmenu.apps.main' #is topmenu in the correct location?
+    'topmenu' #is topmenu in the correct location?
 
 )
 ########## END APP CONFIGURATION
@@ -187,7 +187,7 @@ APPEND_SLASH = True
 LANGUAGE_CODE = 'en-us'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#time-zone
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Los_Angeles'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
 USE_I18N = True

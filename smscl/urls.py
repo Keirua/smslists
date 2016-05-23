@@ -14,7 +14,7 @@ urlpatterns = patterns('',
     # url(r'^$', 'smscl.views.home', name='home'), #what is name for?
     # url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^topmenu/', include('smscl.topmenu.urls')),
+    url(r'^topmenu/', include('topmenu.urls')),
     url(r'^bad/$', bad),
 )
 
