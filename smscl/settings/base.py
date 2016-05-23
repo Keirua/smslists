@@ -159,7 +159,7 @@ INSTALLED_APPS = (
 
     # Add local apps here: (note that only the last element is used as the 'app name'!)
     'smscl.apps.main',
-    'topmenu' #is topmenu in the correct location?
+    'topmenu.apps.TopmenuConfig' #is topmenu in the correct location?
 
 )
 ########## END APP CONFIGURATION
