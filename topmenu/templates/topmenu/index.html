@@ -1,0 +1,9 @@
+{% if latest_listing_list %}
+	<ul>
+	{% for listing in latest_listing_list %}
+		<li><a href="{% url 'topmenu:detail' listing.id %}">{{ listing.listing_text  }}</a></li>
+	{% endfor %}
+	</ul>
+{% else %}
+	<p>No listings are available.</p>
+{% endif %}
