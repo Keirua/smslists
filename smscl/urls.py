@@ -15,6 +15,6 @@ urlpatterns = patterns('',
     # url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^topmenu/', include('topmenu.urls')),
-    url(r'^bad/$', bad),
+    url(r'^bad/$', bad), #need to update this for django 1.10?
 )
 
