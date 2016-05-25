@@ -11,7 +11,7 @@ Django==1.9.6
 #pytz
 #raven
 
-#django-settings-context-processor==0.2
+django-settings-context-processor==0.2
 #django-admin-decorators==0.1
 
 # Django REST framework

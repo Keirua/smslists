@@ -77,20 +77,20 @@ DATABASES = {
 ########## END DATABASE CONFIGURATION
 
 ########## CACHE CONFIGURATION
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379:1',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'SOCKET_TIMEOUT': 5,  # in seconds
-            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
-            # Native parser for added performance (can be included later, maybe for deployment only
-            # 'PARSER_CLASS': 'redis.connection.HiredisParser',
-            # 'PASSWORD': 'secretpassword',  # Optional
-        }
-    }
-}
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'django_redis.cache.RedisCache',
+#        'LOCATION': '127.0.0.1:6379:1',
+#        'OPTIONS': {
+#            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#            'SOCKET_TIMEOUT': 5,  # in seconds
+#            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
+#            # Native parser for added performance (can be included later, maybe for deployment only
+#            # 'PARSER_CLASS': 'redis.connection.HiredisParser',
+#            # 'PASSWORD': 'secretpassword',  # Optional
+#        }
+#    }
+#}
 ########## END CACHE CONFIGURATION
 
 
