@@ -12,9 +12,8 @@ def index(request):
 
 def detail(request, detail_id):
 	print "detail"
-	detail_template_activate = True
-
-	return render(request, 'topmenu/detail.html', )
+	detail = get_object_or_404(Listing, pk = detail_id)
+	return render(request, 'topmenu/detail.html')
 
 #	detail = get_object_or_404(Listing_detail, pk=detail_id)
 #	return render(request, 'topmenu/detail.html', {'listing': listing})
