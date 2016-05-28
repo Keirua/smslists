@@ -17,3 +17,6 @@ def detail(request, detail_id):
 
 #	detail = get_object_or_404(Listing_detail, pk=detail_id)
 #	return render(request, 'topmenu/detail.html', {'listing': listing})
+
+
+

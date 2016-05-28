@@ -79,7 +79,7 @@ def integertest(x):
 	except ValueError:
 	  return False
 
-def top_menu_function():
+def top_menu_function():uuuu
 	user.pos = "top_menu_function"
 	while True:
 		try:
