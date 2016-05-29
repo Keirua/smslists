@@ -1,7 +1,7 @@
 {% if latest_listing_list %}
 	<ul>
 	{% for listing in latest_listing_list %}
-		<li><a href="{% url 'topmenu:detail' listing.id %}">{{  listing.listing_text  }}</a></li>
+		<li><a href="{% url 'topmenu:detail' listing.id %}">{{  listing.header  }}</a></li>
 	{% endfor %}
 	</ul>
 {% else %}

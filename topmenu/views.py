@@ -12,7 +12,8 @@ def index(request):
 
 def detail(request, detail_id):
 	print "detail"
-	detail = get_object_or_404(Listing, pk = detail_id)
+	detail_display = get_object_or_404(Listing, pk = detail_id)
+	context = {'detail_display': detail_display}
 	return render(request, 'topmenu/detail.html')
 
 #	detail = get_object_or_404(Listing_detail, pk=detail_id)
