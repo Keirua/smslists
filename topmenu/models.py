@@ -17,7 +17,7 @@ class Listing(models.Model):
 class User_data(models.Model): # is serial id automatically pk?
 	user_id = models.AutoField(primary_key = True)
 	phone_num = models.PositiveIntegerField(max_length = 10)
-	user_carrier = models.PositiveIntegerField(max_length = 3)
+	#user_carrier = models.PositiveIntegerField(max_length = 3) strategies to get this?
 	user_jointime = models.DateTimeField() #need to read up on this
 	user_state = models.PositiveIntegerField(max_length = 2)
 	#user_loc = models.CharField() # read up on CharField parameters. this will eventually make it's own api call to map a radius

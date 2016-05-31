@@ -30,13 +30,28 @@ def plivo_endpoint(request):
 	messageuuid = request.POST['MessageUUID']
 	message_content = request.POST['Text']
 	message_time = datetime.now()
-	return HttpResponse()
+
+	try:
+		User_data.objects.get(phone_num=source)
+	except (User_data.DoesNotExist):
+		# create new User_data entry 
+		new_user = User_data(user_id(), phone_num=source, user_jointime=now, 
+			user_state=1, user_sms_quant =1,)
+		# does the AutoField user_id need an arg?
+		new_user.save()
+		return render(request, 'topmenu/new_user.html', {'phone_num':source})
+	else:
+		return menu_2(phone_num)
 
 def send_message(src, dest, text):
 	pass
 
 
-
+def menu_2(phone_num):
+	# update user state to reflect current menu
+	current = User_data.objects.filter(phone_num).update(user_state=2)
+	current.save()
+	pass #main menu showing 1. for sale 2. wanted 3. jobs 4. announcements
 
 
 
