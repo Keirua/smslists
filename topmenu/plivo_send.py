@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import plivo
+from .views import reply_source, reply_destination, menu_context
 
 auth_id = "MANGVIYZY0ZMFIMTIWOG"
 auth_token = "Yzc3OTgzZmU4MGIyNDI4ODgzMWE1MWExOWYxZTcx"
@@ -7,9 +8,9 @@ auth_token = "Yzc3OTgzZmU4MGIyNDI4ODgzMWE1MWExOWYxZTcx"
 p = plivo.RestAPI(auth_id, auth_token)
 
 params = {
-    'src': '18058643381', # Sender's phone number with country code
-    'dst' : '18182847345', # Receiver's phone Number with country code
-    'text' : u"Hello, how are you?", # Your SMS Text Message - English
+    'src': '%s', % (source) # Sender's phone number with country code
+    'dst' : '%s', % (destination) # Receiver's phone Number with country code
+    'text' : u"%s", % (menu_text) # Your SMS Text Message - English
 #   'text' : u"こんにちは、元気ですか？" # Your SMS Text Message - Japanese
 #   'text' : u"Ce est texte généré aléatoirement" # Your SMS Text Message - French
     'url' : "", # The URL to which with the status of the message is sent

@@ -33,3 +33,7 @@ class SMS_data(models.Model):
 	message_content = models.CharField(max_length = 140)
 	# image_content = models.ImageField()
 	message_time = DateTimeField(default = timezone.now) #this will auto populate or do i handle in views?
+
+
+
+
