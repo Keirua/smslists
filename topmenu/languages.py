@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
+
 
 class Language(object):
 	def __init__(self, for_sale, wanted, jobs, announcements):
@@ -7,7 +9,7 @@ class Language(object):
 		self.jobs = jobs
 		self.announcements = announcements
 
-class Français(Language):
+class Francais(Language):
 	def __init__(for_sale, wanted, jobs, announcements):
 		self.for_sale = "À vendre"
 		self.wanted = "Demande de"
@@ -21,7 +23,7 @@ class English(Language):
 		self.jobs = "Jobs"
 		self.announcements = "Announcements"
 
-class Español(Language):
+class Espanol(Language):
 	def __init__(for_sale, wanted, jobs, announcements):
 		self.for_sale = "Se vende"
 		self.wanted = "Se busca"
