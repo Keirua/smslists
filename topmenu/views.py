@@ -56,7 +56,8 @@ def menu_2(phone_num):
 	phone_num = reply_destination
 	reply_source = Plivo_number
 	# need to return render or httprequest?
-	return send_message(reply_source, reply_destination, menu_text) 
+	return send_message(reply_source, reply_destination, menu_text), reply_source,
+	reply_destination, menu_text
 
 
 
