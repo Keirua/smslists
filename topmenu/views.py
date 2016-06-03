@@ -30,7 +30,6 @@ def plivo_endpoint(request):
 	destination = request.POST['To']
 	messageuuid = request.POST['MessageUUID']
 	message_content = request.POST['Text']
-	message_time = datetime.now()
 
 	try:
 		User.objects.get(phone_num=source)
@@ -38,7 +37,7 @@ def plivo_endpoint(request):
 		# create new User_data entry
 		User.objects.create(phone_num=source, user_state=1)
 		return render(request, 'topmenu/new_user.html', {'phone_num':source}),
-		source # do something with this
+		source, destination, messageuuid, # can variables be accessed w/o returning?
 	else:
 		return menu_2(source)
 
