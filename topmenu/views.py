@@ -6,10 +6,14 @@ from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
-from .languages import Language, English, Espanol, Francais
-from .plivo_send import response
+from .languages import Language, English, Spanish, French
+import plivo
 
-PLIVO_NUMBER = "18058643381" # in the future will call deployment.txt
+PLIVO_NUMBER = "18058643381" # in the future will call deployment.txts
+auth_id = "MANGVIYZY0ZMFIMTIWOG"
+auth_token = "Yzc3OTgzZmU4MGIyNDI4ODgzMWE1MWExOWYxZTcx"
+
+
 
 def index(request):
 	print "index"
@@ -32,19 +36,31 @@ def plivo_endpoint(request):
 	message_content = request.POST['Text']
 
 	try:
-		User.objects.get(phone_num=source)
+		pass # User.objects.get(phone_num=source)
 	except User.DoesNotExist:
 		# create new User_data entry
-		User.objects.create(phone_num=source, user_state=1)
-		return render(request, 'topmenu/new_user.html', {'phone_num':source}),
-		source, destination, messageuuid, # can variables be accessed w/o returning?
+		# User.objects.create(phone_num=source, user_state=1)
+		menu_text = ""
+		send_message(source=destination, destination=source, menu_text="""
+			Welcome. Your phone number has been recorded as %s""" % source)
+		menu_2(source)
+		return HttpResponse()
 	else:
-		return menu_2(source)
+		menu_2(source)
+		return HttpResponse()
 
 def send_message(source, destination, menu_text):
-	# not sure on the best way to call p.send in plivo_send
-	# need to return render or httprequest?
+	p = plivo.RestAPI(auth_id, auth_token)
+	params = {
+    'src': source,  # Sender's phone number with country code
+    'dst': destination,  # Receiver's phone Number with country code
+    'text' : menu_text, # Your SMS Text Message - English
+    'url' : "", # The URL to which with the status of the message is sent
+    'method' : 'POST' # The method used to call the url
+	}
+	response = p.send_message(params)	
 	return response
+
 
 def menu_2(phone_num):
 	# update user state to reflect current menu
@@ -56,9 +72,7 @@ def menu_2(phone_num):
 	phone_num = reply_destination
 	reply_source = Plivo_number
 	# need to return render or httprequest?
-	return send_message(reply_source, reply_destination, menu_text), reply_source,
-	reply_destination, menu_text
-
+	return send_message(reply_source, reply_destination, menu_text)
 
 
 

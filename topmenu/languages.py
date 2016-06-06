@@ -9,7 +9,7 @@ class Language(object):
 		self.jobs = jobs
 		self.announcements = announcements
 
-class Francais(Language):
+class French(Language):
 	def __init__(for_sale, wanted, jobs, announcements):
 		self.for_sale = "À vendre"
 		self.wanted = "Demande de"
@@ -23,7 +23,7 @@ class English(Language):
 		self.jobs = "Jobs"
 		self.announcements = "Announcements"
 
-class Espanol(Language):
+class Spanish(Language):
 	def __init__(for_sale, wanted, jobs, announcements):
 		self.for_sale = "Se vende"
 		self.wanted = "Se busca"
