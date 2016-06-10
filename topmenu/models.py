@@ -5,13 +5,13 @@ from django.utils import timezone
 from django.contrib.auth.models import User as DjangoUser
 
 class User(DjangoUser):
-	phone_num = models.PositiveIntegerField(max_length=10)
+	phone_num = models.BigIntegerField(max_length=10)
 	#user_carrier = models.PositiveIntegerField(max_length = 3)
-	user_jointime = models.DateTimeField(auto_now_add=True) 
+	user_jointime = models.DateTimeField(auto_now_add=True)
 	user_state = models.PositiveIntegerField(max_length=2)
 	#user_loc = models.CharField() # read up on CharField parameters. this will eventually make it's own api call to map a radius
-	user_sms_quant = models.PositiveIntegerField(max_length=4)
-	user_language = models.CharField(max_length=20)
+	user_sms_quant = models.PositiveIntegerField(max_length=4, default=1)
+	user_language = models.CharField(max_length=20, default='English')
 
 class Listing(models.Model):
 	header = models.CharField(max_length=40)
