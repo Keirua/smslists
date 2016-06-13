@@ -16,7 +16,7 @@ auth_id = "MANGVIYZY0ZMFIMTIWOG"
 auth_token = "Yzc3OTgzZmU4MGIyNDI4ODgzMWE1MWExOWYxZTcx"
 
 
-
+###############
 def index(request):
 	print "index"
 	latest_listing_list = Listing.objects.order_by('-pub_date')[:6]
@@ -27,6 +27,8 @@ def detail(request, detail_id):
 	print "detail"
 	detail_display = get_object_or_404(Listing, pk = detail_id)
 	return render(request, 'topmenu/detail.html', {'apples': detail_display})
+###############
+
 
 # receieve sms method
 @csrf_exempt
@@ -38,10 +40,18 @@ def plivo_endpoint(request):
 	message_content = request.POST['Text']
 
 	try:
-		User.objects.get(phone_num=source)
-		menu_2(source)
-		# https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpResponse.status_code
-		return HttpResponse(status=200)
+		User.objects.filter(source=phone_num).user_state
+		if user_state == 2:
+			if int(message_content)==1:
+				listings(phone_num, 1)
+			elif int(message_content)==2:
+				listings(phone_num, 2)
+			elif int(message_content)==3:
+				listings(phone_num, 3)
+			elif int(message_content)==4:
+				listings(phone_num, 4)
+		# need to get this working ^
+
 	except User.DoesNotExist:
 		# create new User_data entry
 		User.objects.create(phone_num=source, user_state=1)
@@ -64,13 +74,25 @@ def send_message(source, destination, menu_text):
 	response = p.send_message(params)	
 	return response
 
+def process_input():
+		User.objects.filter(phone_num=phone_num).user_state
+		if user_state == 2:
+			menu_2(source)
+			return HttpResponse(status=200)
+		elif user_state==3:
+			listings(source=phone_num, 1)
+		elif user_state==4:
+			listings(source=phone_num, 2)
+		elif user_state==5:
+			listings(source=phone_num,3)
+		elif user_state==6:
+			listings(source=phone_num, 4)
 
 def menu_2(phone_num):
 	# update user state to reflect current menu 
 	User.objects.filter(phone_num=phone_num).update(user_state=2)
-
-	current_language = 
-	LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+	# get user language
+	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
 		current_language.wanted, current_language.jobs,
@@ -79,6 +101,10 @@ def menu_2(phone_num):
 	send_message(source = PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
 	return HttpResponse(status=200)
+
+def listings(phone_num, user_state):
+	if user_state==2:
+
 
 
 
