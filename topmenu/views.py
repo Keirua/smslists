@@ -40,7 +40,8 @@ def plivo_endpoint(request):
 	try:
 		User.objects.get(phone_num=source)
 		menu_2(source)
-		return HttpResponse()
+		# https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpResponse.status_code
+		return HttpResponse(status=200)
 	except User.DoesNotExist:
 		# create new User_data entry
 		User.objects.create(phone_num=source, user_state=1)
@@ -48,7 +49,8 @@ def plivo_endpoint(request):
 		send_message(source=destination, destination=source, menu_text=
 			"""Welcome! Your phone number has been recorded as %s""" % source)
 		menu_2(source)
-		return HttpResponse()
+		# https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpResponse.status_code
+		return HttpResponse(status=200)
 
 def send_message(source, destination, menu_text):
 	p = plivo.RestAPI(auth_id, auth_token)
@@ -66,11 +68,17 @@ def send_message(source, destination, menu_text):
 def menu_2(phone_num):
 	# update user state to reflect current menu 
 	User.objects.filter(phone_num=phone_num).update(user_state=2)
-	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+
+	current_language = 
+	LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
-		current_language.wanted, current_language.jobs, current_language.announcements)
-	send_message(source = PLIVO_NUMBER, destination=phone_num, menu_text=menu_text)
-	return HttpResponse()
+		current_language.wanted, current_language.jobs,
+		current_language.announcements)
+
+	send_message(source = PLIVO_NUMBER, destination=phone_num,
+		menu_text=menu_text)
+	return HttpResponse(status=200)
 
 
 
