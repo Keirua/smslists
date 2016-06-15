@@ -23,6 +23,7 @@ SMS Craigslist:
 -Will run on Heroku x Plivo.
 
 
+
 Project structure
 =================
 
@@ -65,6 +66,26 @@ requirements.txt - root requirements file for deployment PaaS targets
                      that may need it (e.g. Heroku). It simply includes
                      requirements/deployment.txt .
 
+
+Session Management Structure
+----------------------------
+
+1. user sends text
+2. plivo receives, makes httprequest to server
+3. server middleware receives request
+4. middleware parses request (message content)
+  - gets source number from request [session middleware]
+  - uses source number to load session (if exists) [session middleware]
+  - checks to see if http request is from plivo. if not from plivo, request is passed through to some other view
+    function without having to run remaining middleware methods. [plivo middleware]
+  - gets message content, which is how user navigates [plivo middleware]
+  - checks session for user context (context contains number to url mappings) [plivo middleware]
+  - if context exists, maps message content to session context and generates relevant url [plivo middleware]
+  - if context does not exist, does nothing with message content and generates url that corresponds to menu_2
+5. once all middleware processes (including others not listed above) are complete, django uses "invisible" URL
+   executable to call urls.py
+6. urls.py calls appropriate view
+5. views methods process request
 
 Runtime environments & settings & requirements
 ----------------------------------------------
