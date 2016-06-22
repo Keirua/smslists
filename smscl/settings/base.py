@@ -169,7 +169,8 @@ INSTALLED_APPS = (
 ########## END APP CONFIGURATION
 
 MIDDLEWARE_CLASSES = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    # 'django.contrib.sessions.middleware.SessionMiddleware', # replaced by modified session middleware (below)
+    'topmenu.middleware.SmsSessionMiddleware'
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
