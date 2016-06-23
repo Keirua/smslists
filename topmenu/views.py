@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
-from .models import Listing, User # will this subclass include all attributes and imports for the parent class?
+from .models import Listing, User 
 from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -29,7 +29,7 @@ def detail(request, detail_id):
 	return render(request, 'topmenu/detail.html', {'apples': detail_display})
 ###############
 
-
+"""
 # receieve sms method
 @csrf_exempt
 @require_POST
@@ -52,6 +52,8 @@ def plivo_endpoint(request):
 				listings(phone_num, 4)
 		# need to get this working ^
 
+
+
 	except User.DoesNotExist:
 		# create new User_data entry
 		User.objects.create(phone_num=source, user_state=1)
@@ -61,6 +63,7 @@ def plivo_endpoint(request):
 		menu_2(source)
 		# https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpResponse.status_code
 		return HttpResponse(status=200)
+"""
 
 def send_message(source, destination, menu_text):
 	p = plivo.RestAPI(auth_id, auth_token)
@@ -90,7 +93,7 @@ def process_input():
 
 def menu_2(phone_num):
 	# update user state to reflect current menu 
-	User.objects.filter(phone_num=phone_num).update(user_state=2)
+	User.objects.filter(phone_num=phone_num).update(user_state=2) #replace w/ session middleware
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 
