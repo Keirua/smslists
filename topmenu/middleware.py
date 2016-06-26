@@ -10,6 +10,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def process_request(self, request):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 		request.session = self.SessionStore(session_key)
+		message_content = request.POST['Text']
 
 		"""
 		ALT VERSION OF ^
@@ -18,15 +19,23 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		else:
     		session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
     	"""
-    	# if session is empty, send to menu_2. NOTE: will need to pass in source for views arguments. NOTE2: don't think redirects to submenus (i.e.
-    		# browsing listings) will be necessary, but will think about it.
+    	
     	if session_key == None:
-    		return HttpResponseRedirect("topmenu/menu_2", status=200) # 'else' criteria needed?
-    	else:
+    		return HttpResponseRedirect("topmenu/menu_2", status=200)
     		user_state = request.Session.get['user_state']
     		if user_state == "menu_2":
-				return HttpResponseRedirect("/topmenu/menu_2", status=200)
+    			if message_content == 1:
+    				return HttpResponseRedirect("/topmenu/listings", status=200)
+    			elif message_content == 2:
+    				return HttpResponseRedirect("/topmenu/wanted", status=200)
+    			elif message_content == 3:
+    				return HttpResponseRedirect("/topmenu/jobs", status=200)
+    			elif message_content == 4:
+    				return HttpResponseRedirect("/topmenu/announcements", status=200)
 			elif user_state == "listings":
+				if message_content=1:
+					# get URL that "1" corresponds to for this specific user search. need to build display results view(s). NEED TO ADD RESULTS PAGE TO DICTIONARY.
+					return HttpResponseRedirect(# ^ this URL)
 				return HttpResponseRedirect("/topmenu/listings", status=200)
 			elif user_state == "wanted":
 				return HttpResponseRedirect("/topmenu/wanted", status=200)

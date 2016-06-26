@@ -76,13 +76,11 @@ def send_message(source, destination, menu_text):
 	}
 	response = p.send_message(params)	
 	return response
-	
+
 def menu_2(phone_num):
-	# update user state to reflect current menu 
-	# User.objects.filter(phone_num=phone_num).update(user_state=2) 
-	request.Session["user_state"]="menu_2"
+	request.Session["user_state"]="menu_2" # NEEDS TO TIMEOUT AFTER 5 MIN
 	# get user language
-	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
 		current_language.wanted, current_language.jobs,
@@ -92,7 +90,10 @@ def menu_2(phone_num):
 		menu_text=menu_text)
 	return HttpResponse(status=200)
 
-def listings(phone_num, user_state):
+def listings(message_content, ):
+	message_content == 
+
+	
 	if user_state==2:
 
 
