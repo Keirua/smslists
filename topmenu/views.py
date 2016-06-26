@@ -76,24 +76,11 @@ def send_message(source, destination, menu_text):
 	}
 	response = p.send_message(params)	
 	return response
-
-def process_input():
-		User.objects.filter(phone_num=phone_num).user_state
-		if user_state == 2:
-			menu_2(source)
-			return HttpResponse(status=200)
-		elif user_state==3:
-			listings(source=phone_num, 1)
-		elif user_state==4:
-			listings(source=phone_num, 2)
-		elif user_state==5:
-			listings(source=phone_num,3)
-		elif user_state==6:
-			listings(source=phone_num, 4)
-
+	
 def menu_2(phone_num):
 	# update user state to reflect current menu 
-	User.objects.filter(phone_num=phone_num).update(user_state=2) #replace w/ session middleware
+	# User.objects.filter(phone_num=phone_num).update(user_state=2) 
+	request.Session["user_state"]="menu_2"
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 

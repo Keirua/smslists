@@ -36,7 +36,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 				return HttpResponseRedirect("/topmenu/announcements", status=200)
 
 class AdminRequest(middleware.SessionMiddleware)
-	def filter_admin(self,session_key):
+	def filter_admin(self, session_key):
 		if len(session_key) != 10:
 		return HttpResponseRedirect("/admin", status=200)
 
