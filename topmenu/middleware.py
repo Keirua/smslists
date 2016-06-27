@@ -33,10 +33,14 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
     			elif message_content == 4:
     				return HttpResponseRedirect("/topmenu/announcements", status=200)
 			elif user_state == "listings":
-				if message_content=1:
+				if message_content==1:
 					# get URL that "1" corresponds to for this specific user search. need to build display results view(s). NEED TO ADD RESULTS PAGE TO DICTIONARY.
 					return HttpResponseRedirect(# ^ this URL)
-				return HttpResponseRedirect("/topmenu/listings", status=200)
+					# return HttpResponseRedirect("/topmenu/listings", status=200)
+				elif message_content==2:
+					pass
+				elif message_content==3:
+					pass # etc etc etc
 			elif user_state == "wanted":
 				return HttpResponseRedirect("/topmenu/wanted", status=200)
 			elif user_state == "jobs":
@@ -44,13 +48,13 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			elif user_state == "announcements":
 				return HttpResponseRedirect("/topmenu/announcements", status=200)
 
-class AdminRequest(middleware.SessionMiddleware)
+class AdminRequest(middleware.SessionMiddleware):
 	def filter_admin(self, session_key):
 		if len(session_key) != 10:
 		return HttpResponseRedirect("/admin", status=200)
 
 # SmsSessionMiddleware will handle redirect to menus, but need to build out smscontextfinder to handle commands
-class SmsContextFinder(middleware.SessionMiddleware)
+class SmsContextFinder(middleware.SessionMiddleware):
 	def get_user_state(self, session_key):
 		user_state = request.session["user_state"] 
 		fav_color = request.session["fav_color"]

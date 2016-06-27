@@ -1,0 +1,40 @@
+1. search(category, is_active, location): # is_active could instead be uploaded/created
+	return list of primary keys that whose entries fit criteria. 
+
+2. dictionary is constructed, generating and assigning a url key to each primary key
+	-url includes session-specific information, so that one url can not simultaneously refer to two database items
+
+3. dictionary urls are then made into a list.
+
+4. list is segmented into groups of 4, which are themselves made into a list ex: results[0] = [1, 2, 3, 4]
+
+5. The headers of each item in a group of 4 listings are returned to the user.
+
+6. user can input a number corresponding to an individual listing, at which point the server would return the full description for that listing,
+   OR user can opt to view 4 more listings, at which point the next 4-item-array within the results list is passed to user.
+
+
+laszlo example:
+
+1 -> /topmenu/items/5
+2 -> /topmenu/items/6
+3 -> /topmenu/items/7
+4 -> /topmenu/items/8
+5 -> /topmenu/search/?location=LA&category=forsale&idtg=8
+
+User sees:
+1: shoes
+2: whatever
+3: penzils
+4:
+5: next
+
+
+view:
+
+def search(request):
+    Items.objects.filter(location=request.GET['location'], id__gt = int(request.GET['first_id']))[:4]
+    # use template to generate response,
+    
+def show_item(request, id)
+    Item.onbjects.get(pk=id) # -> goes into template
