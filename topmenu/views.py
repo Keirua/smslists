@@ -93,10 +93,11 @@ def menu_2(phone_num):
 def listings(message_content, ):
 	message_content == 
 
-	
+
 	if user_state==2:
 
-
+def search(request):
+	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4] #where are location and first_id defined?
 
 
 
