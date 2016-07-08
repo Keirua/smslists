@@ -13,6 +13,24 @@
 6. user can input a number corresponding to an individual listing, at which point the server would return the full description for that listing,
    OR user can opt to view 4 more listings, at which point the next 4-item-array within the results list is passed to user.
 
+######################
+
+V2
+
+1. User requests to view a listing
+
+2. Middleware searches session for user.
+	- If active:
+		Context is created by looking at last URL that was generated for user (this url, which will be found in an user-specific session dictionary will include the search parameters and the listings that were shown. What if a new listing is posted in between when the user's session info was last stored and when the user replies with a command?)
+	- Else:
+		User is passed to top menu and session is created.
+
+3. If the user has requested to see 4 new listings, the listing view does a sql search for the 4 most recently posted items. Using reverse(), the listing view assigns those items internal urls and finally using the session dictionary, maps those urls to user commands 1-5. Httpresponseredirect is not used as it would display http directly to the user.
+
+4. Once mapping is complete, text is sent to user via views (or middleware?). Will either connect w/ api or generate xml code directly.
+
+#######################
+
 
 laszlo example:
 
@@ -38,3 +56,4 @@ def search(request):
     
 def show_item(request, id)
     Item.onbjects.get(pk=id) # -> goes into template
+

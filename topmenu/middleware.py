@@ -11,7 +11,8 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 		request.session = self.SessionStore(session_key)
 		message_content = request.POST['Text']
-
+		request.path_info = '/topmenu/'
+		
 		"""
 		ALT VERSION OF ^
 		if 'From' in request.POST:
@@ -19,76 +20,15 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		else:
     		session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
     	"""
+		
+		if request.session['last_login'] == None:
+
+
+
+		
 
     	reverse(views.listings, kwargs=)
-    	
-    	if session_key == None:
-    		return HttpResponseRedirect("topmenu/menu_2", status=200)
-    		user_state = request.Session.get['user_state']
-    		
-    		if user_state == "menu_2":
-    			if message_content == 1:
-    				return HttpResponseRedirect("/topmenu/listings", status=200)
-    			elif message_content == 2:
-    				return HttpResponseRedirect("/topmenu/wanted", status=200)
-    			elif message_content == 3:
-    				return HttpResponseRedirect("/topmenu/jobs", status=200)
-    			elif message_content == 4:
-    				return HttpResponseRedirect("/topmenu/announcements", status=200)
-			
-			elif user_state == "listings":
-				if int(message_content)==1:
-					# get URL that "1" corresponds to for this specific user search. need to build display results view(s). NEED TO ADD RESULTS PAGE TO DICTIONARY.
-					# return HttpResponseRedirect( ^ this URL)
-					# return HttpResponseRedirect("/topmenu/listings", status=200)
-				elif int(message_content)==2:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==3:
-					pass # etc etc etc
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==4:
-					pass
-					# return HttpResponseRedirect(URL)
-			
-			elif user_state == "wanted":
-				if int(message_content)==1:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==2:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==3:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==4:
-					# return HttpResponseRedirect(URL)
-			
-			elif user_state == "jobs":
-				if int(message_content)==1:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==2:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==3:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==4:
-					# return HttpResponseRedirect(URL)
-			
-			elif user_state == "announcements":
-				if int(message_content)==1:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==2:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==3:
-					pass
-					# return HttpResponseRedirect(URL)
-				elif int(message_content)==4:
-					# return HttpResponseRedirect(URL)
+    	RL)
 
 """
 class AdminRequest(middleware.SessionMiddleware):

@@ -90,7 +90,7 @@ def menu_2(phone_num):
 		menu_text=menu_text)
 	return HttpResponse(status=200)
 
-def listings(message_content, ):
+def listings(request, id, category_name ):
 	message_content == 
 
 
