@@ -41,15 +41,15 @@ def send_message(source, destination, menu_text):
 	response = p.send_message(params)	
 	return response
 
-def menu_2(phone_num):
-	request.session["/topmenu/menu_2"]="/topmenu/menu_2" # don't need to store this. instead just store the 
+def menu_2(session_key): # 7/9 changed phone_num to session_key.
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
-
-	request.session["1."]="/for_sale/"
-	request.session["2."]="/wanted/"
-	request.session["3."]="/jobs/"
-	request.session["4."]="/announcements/"
+	
+	# SEND
+	request.session["1."]="/listings/for_sale/"
+	request.session["2."]="/listings/wanted/"
+	request.session["3."]="/listings/jobs/"
+	request.session["4."]="/listings/announcements/"
 	# request.session["5."]="/post/"
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
@@ -60,8 +60,26 @@ def menu_2(phone_num):
 		menu_text=menu_text)
 	return HttpResponse(status=200)
 
-def listings(request, id, category_name ):
-	message_content == 
+	# RECEIVE (need to build)
+
+
+
+def listings(session_key):
+	"""
+	2 possible paths:
+	
+	1. No listings stored in session; Pull location and category
+	from session; call db and pull 4 entries and generate link from pk;
+	map links to user-viewable commands and send; update session.
+	
+	2. Listings already stored in session; Parse message context and map
+	user to corresponding link. Using pk in link, call db and pull full
+	entry. Send SMS and map possible corresponding possible link responses.
+	Update session.
+	"""
+
+	request.session.get["1."]
+
 
 
 	if user_state==2:
