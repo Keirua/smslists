@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .languages import *
 import plivo
-
+from middleware import PlivoHandler
 
 
 PLIVO_NUMBER = "18058643381" # in the future will call deployment.txts
@@ -64,7 +64,7 @@ def menu_2(session_key): # 7/9 changed phone_num to session_key.
 
 
 
-def listings(session_key):
+def listings(session_key, category):
 	"""
 	2 possible paths:
 	
@@ -79,7 +79,7 @@ def listings(session_key):
 	"""
 
 	request.session.get["1."]
-
+	int(PlivoHandler.message_content)
 
 
 	if user_state==2:

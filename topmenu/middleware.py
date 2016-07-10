@@ -9,19 +9,41 @@ class SmsLinkHandlerMiddleware(object):
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def process_request(self, request):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
+		
+		# check to see if active session exists
 		try request.session['session_key']: 
 			except KeyError
 			reverse('topmenu/menu_2/')
+
+		# if active session exists, parse message content and map to context
 		else:
 			request.session = self.SessionStore(session_key)
 			message_content = request.POST['Text'] # does this need to go in plivo handler?
 			request.path_info = '/topmenu/' # is this the right place for this?
 
-			last_link1 = request.session.get["1."]
-			last_link2 = request.session.get["2."]
-			last_link3 = request.session.get["3."]
-			last_link4 = request.session.get["4."]
 
+			# find context
+
+			# possible types of incoming urls:
+
+			/topmenu/menu_2/for_sale/
+			/topmenu/menu_2/wanted/
+			/topmenu/menu_2/jobs/
+			/topmenu/menu_2/announcements/
+
+			/topmenu/listings/234/ # for_sale item pk 234
+			/topmenu/listings/235/ # for_sale item pk 235
+			/topmenu/listings/723/
+
+			/topmenu/listings/for_sale/234
+			
+
+			last_link1 = request.session.get["1.", None]
+			last_link2 = request.session.get["2.", None]
+			last_link3 = request.session.get["3.", None]
+			last_link4 = request.session.get["4.", None]
+
+			# PULL MESSAGE CONTENT AND REDIRECT TO CORRECT URL (BASED OFF CONTEXT)
 
 
 		"""
@@ -31,6 +53,11 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		else:
     		session_key = request.COOKIES.get(settings.SESSION_COOKIE_NAME)
     	"""
+
+    				# parse message conent
+
+			if int(message_content) = 
+
 
 class PlivoHandler(object):
 	def process_request(self, request): 

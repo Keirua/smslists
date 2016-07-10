@@ -26,7 +26,7 @@ class Listing(models.Model):
 		return self.pub_date >= timezone.now() - datetime.timedelta(days =1)
 
 class SMS(models.Model):
-	message_uuid = models.CharField(max_length=40)
+	message_uuid = models.CharField(max_length=40) # 7/9 – needed here if uuid is also stored in request.session?
 	user = models.ForeignKey(User)
 	source = models.PositiveIntegerField(max_length=11)
 	destination = models.PositiveIntegerField(max_length =11)
