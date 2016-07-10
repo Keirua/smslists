@@ -26,17 +26,17 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 			# possible types of incoming urls:
 
-			/topmenu/menu_2/for_sale/
-			/topmenu/menu_2/wanted/
-			/topmenu/menu_2/jobs/
-			/topmenu/menu_2/announcements/
+			/menu_2/for_sale/
+			/menu_2/wanted/
+			/menu_2/jobs/
+			/menu_2/announcements/
 
-			/topmenu/listings/234/ # for_sale item pk 234
-			/topmenu/listings/235/ # for_sale item pk 235
-			/topmenu/listings/723/
+			/listings/234/ # for_sale item pk 234
+			/listings/235/ # for_sale item pk 235
+			/listings/723/
 
-			/topmenu/listings/for_sale/234
-			
+			/listings/for_sale/234
+
 
 			last_link1 = request.session.get["1.", None]
 			last_link2 = request.session.get["2.", None]

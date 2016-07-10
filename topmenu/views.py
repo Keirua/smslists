@@ -64,13 +64,13 @@ def menu_2(session_key): # 7/9 changed phone_num to session_key.
 
 
 
-def listings(session_key, category):
+def listings(session_key, category, message_content=None):
 	"""
 	2 possible paths:
 	
-	1. No listings stored in session; Pull location and category
-	from session; call db and pull 4 entries and generate link from pk;
-	map links to user-viewable commands and send; update session.
+	1. No listings stored in session (message_content=None); Pull location and
+	category from session; call db and pull 4 entries and generate link from
+	pk; map links to user-viewable commands and send; update session.
 	
 	2. Listings already stored in session; Parse message context and map
 	user to corresponding link. Using pk in link, call db and pull full
@@ -78,11 +78,20 @@ def listings(session_key, category):
 	Update session.
 	"""
 
-	request.session.get["1."]
-	int(PlivoHandler.message_content)
+	# get user location
+
+	phone_num = session_key
+	location = User.user_loc.get(phone_num)
+
+	if message_content == None:
+
+		link1 = reverse( Listings.header.filter(location, category, [-1:])
+		link2 = Listings.header.filter(location, category, [-2:-1])
+		link3 = Listings.header.filter(location, category, [-3:-2])
+		Link4 = Listings.header.filter(location, category, [-4:-3])
 
 
-	if user_state==2:
+
 
 def search(request):
 	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4] #where are location and first_id defined?

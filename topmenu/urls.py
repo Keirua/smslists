@@ -6,10 +6,10 @@ urlpatterns = [
 	url(r'^$', views.index, name='index'),
 	# url(r'^plivo_endpoint/$', views.plivo_endpoint, name='plivo_endpoint')
 	url(r'^menu_2/$', views.menu_2, name='menu_2') # name arg used for reverse URL lookup
-	url(r'^/listings/for_sale/(?P<id>\d+)/', views.listings, {'category':'for_sale'}, name='listings_for_sale')
-	url(r'^/listings/wanted/(?P<id>\d+)/', views.listings, {'category':'wanted'}, name='listings_wanted')
-	url(r'^/listings/jobs/(?P<id>\d+)/', views.listings, {'category':'jobs'}, name='listings_jobs')
-	url(r'^/listings/announcements/(?P<id>\d+)/', views.listings, {'category':'announcements'}, name='listings_announcements')
+	url(r'^/listings/for_sale/(?P<id>\d+)/', views.listings, {'category':'for_sale'}, name='for_sale')
+	url(r'^/listings/wanted/(?P<id>\d+)/', views.listings, {'category':'wanted'}, name='wanted')
+	url(r'^/listings/jobs/(?P<id>\d+)/', views.listings, {'category':'jobs'}, name='jobs')
+	url(r'^/listings/announcements/(?P<id>\d+)/', views.listings, {'category':'announcements'}, name='announcements')
 	]
 
 
