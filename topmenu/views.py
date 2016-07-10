@@ -85,7 +85,7 @@ def listings(session_key, category, message_content=None):
 
 	if message_content == None:
 
-		link1 = reverse( Listings.header.filter(location, category, [-1:])
+		link1 = reverse("%s", Listings.header.filter(location, category, [-1:]) % category # need to return the last db item's pk where location and category match
 		link2 = Listings.header.filter(location, category, [-2:-1])
 		link3 = Listings.header.filter(location, category, [-3:-2])
 		Link4 = Listings.header.filter(location, category, [-4:-3])

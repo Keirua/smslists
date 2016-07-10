@@ -12,7 +12,7 @@ class User(DjangoUser):
 	user_sms_quant = models.PositiveIntegerField(max_length=4, default=1)
 	user_language = models.CharField(max_length=20, default='English')
 
-class Listing(models.Model):
+class Listings(models.Model):
 	header = models.CharField(max_length=40)
 	#adding detail as an attribute of the same object instance:
 	detail = models.CharField(max_length=140)
@@ -22,7 +22,7 @@ class Listing(models.Model):
 	def __str__(self):
 		return "%s, %s" % (self.header, self.detail)
 	def was_published_recently(self):
-		return self.pub_date >= timezone.now() - datetime.timedelta(days =1)
+		return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
 
 class SMS(models.Model):
 	message_uuid = models.CharField(max_length=40) # 7/9 – needed here if uuid is also stored in request.session?

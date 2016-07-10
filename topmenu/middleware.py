@@ -18,7 +18,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		# if active session exists, parse message content and map to context
 		else:
 			request.session = self.SessionStore(session_key)
-			message_content = request.POST['Text'] # does this need to go in plivo handler?
+			message_content = request.POST['Text'] # does this need to go in plivo handler or the SmsLinkHandlerMiddleware?
 			request.path_info = '/topmenu/' # is this the right place for this?
 
 
@@ -39,9 +39,13 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 
 			last_link1 = request.session.get["1.", None]
-			last_link2 = request.session.get["2.", None]
-			last_link3 = request.session.get["3.", None]
-			last_link4 = request.session.get["4.", None]
+
+			
+			# last_link2 = request.session.get["2.", None]
+			# last_link3 = request.session.get["3.", None]
+			# last_link4 = request.session.get["4.", None]
+
+			if 
 
 			# PULL MESSAGE CONTENT AND REDIRECT TO CORRECT URL (BASED OFF CONTEXT)
 

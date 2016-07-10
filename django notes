@@ -21,11 +21,11 @@ V2
 
 2. Middleware searches session for user.
 	- If active:
-		Context is created by looking at last URL that was generated for user (this url, which will be found in an user-specific session dictionary will include the search parameters and the listings that were shown. What if a new listing is posted in between when the user's session info was last stored and when the user replies with a command?)
+		Context is created by looking at last URL that was generated for user (this url, which will be found in an user-specific session dictionary will include the listings that were shown.)
 	- Else:
-		User is passed to top menu and session is created.
+		If dictionary is None, user is passed to top menu and session is created.
 
-3. If the user has requested to see 4 new listings, the listing view does a sql search for the 4 most recently posted items. Using reverse(), the listing view assigns those items internal urls and finally using the session dictionary, maps those urls to user commands 1-5. Httpresponseredirect is not used as it would display http directly to the user.
+3. If the user has requested to see 4 new listings, the listing view does a sql search for the 4 most recently posted items. Using reverse(), the listing view assigns those items internal urls and finally using the session dictionary, maps those urls to user commands 1-5. Httpresponseredirect is not used as it would display http directly to the user. Session middleware has to be above the plivo middleware because by the time the session gets to the plivo middleware the session will already have been loaded from the database. 
 
 4. Once mapping is complete, text is sent to user via views (or middleware?). Will either connect w/ api or generate xml code directly.
 
