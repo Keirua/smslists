@@ -29,42 +29,6 @@ def detail(request, detail_id):
 	return render(request, 'topmenu/detail.html', {'apples': detail_display})
 ###############
 
-"""
-# receieve sms method
-@csrf_exempt
-@require_POST
-def plivo_endpoint(request):
-	source = request.POST['From']
-	destination = request.POST['To']
-	messageuuid = request.POST['MessageUUID']
-	message_content = request.POST['Text']
-
-	try:
-		User.objects.filter(source=phone_num).user_state
-		if user_state == 2:
-			if int(message_content)==1:
-				listings(phone_num, 1)
-			elif int(message_content)==2:
-				listings(phone_num, 2)
-			elif int(message_content)==3:
-				listings(phone_num, 3)
-			elif int(message_content)==4:
-				listings(phone_num, 4)
-		# need to get this working ^
-
-
-
-	except User.DoesNotExist:
-		# create new User_data entry
-		User.objects.create(phone_num=source, user_state=1)
-		menu_text = ""
-		send_message(source=destination, destination=source, menu_text=
-			"""Welcome! Your phone number has been recorded as %s""" % source)
-		menu_2(source)
-		# https://docs.djangoproject.com/en/1.9/ref/request-response/#django.http.HttpResponse.status_code
-		return HttpResponse(status=200)
-"""
-
 def send_message(source, destination, menu_text):
 	p = plivo.RestAPI(auth_id, auth_token)
 	params = {
@@ -78,9 +42,15 @@ def send_message(source, destination, menu_text):
 	return response
 
 def menu_2(phone_num):
-	request.Session["user_state"]="menu_2" # NEEDS TO TIMEOUT AFTER 5 MIN
+	request.session["/topmenu/menu_2"]="/topmenu/menu_2" # don't need to store this. instead just store the 
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
+
+	request.session["1."]="/for_sale/"
+	request.session["2."]="/wanted/"
+	request.session["3."]="/jobs/"
+	request.session["4."]="/announcements/"
+	# request.session["5."]="/post/"
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
 		current_language.wanted, current_language.jobs,
