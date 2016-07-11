@@ -11,13 +11,13 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 		
 		# check to see if active session exists
-		try request.session['session_key']: 
+		try request.Session['session_key']: 
 			except KeyError
 			reverse('topmenu/menu_2/')
 
 		# if active session exists, parse message content and map to context
 		else:
-			request.session = self.SessionStore(session_key)
+			request.Session = self.SessionStore(session_key)
 			message_content = request.POST['Text'] # does this need to go in plivo handler or the SmsLinkHandlerMiddleware?
 			request.path_info = '/topmenu/' # is this the right place for this?
 
@@ -40,7 +40,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 			last_link1 = request.session.get["1.", None]
 
-			
+
 			# last_link2 = request.session.get["2.", None]
 			# last_link3 = request.session.get["3.", None]
 			# last_link4 = request.session.get["4.", None]
