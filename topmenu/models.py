@@ -12,7 +12,7 @@ class User(DjangoUser):
 	user_sms_quant = models.PositiveIntegerField(max_length=4, default=1)
 	user_language = models.CharField(max_length=20, default='English')
 
-class Listings(models.Model):
+class Listing(models.Model):
 	header = models.CharField(max_length=40)
 	#adding detail as an attribute of the same object instance:
 	detail = models.CharField(max_length=140)

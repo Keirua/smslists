@@ -8,7 +8,6 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .languages import *
 import plivo
-from middleware import PlivoHandler
 
 
 PLIVO_NUMBER = "18058643381" # in the future will call deployment.txts
@@ -41,7 +40,9 @@ def send_message(source, destination, menu_text):
 	response = p.send_message(params)	
 	return response
 
-def menu_2(session_key): # 7/9 changed phone_num to session_key.
+@csrf_exempt
+def menu_2(request): # 7/9 changed phone_num to session_key.
+	phone_num = request.session["phone_num"]
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
 	
@@ -63,39 +64,43 @@ def menu_2(session_key): # 7/9 changed phone_num to session_key.
 	# RECEIVE (need to build)
 
 
-
-def listings(session_key, category, message_content=None):
+@csrf_exempt
+def listings(request, category):
 	"""
 	2 possible paths:
 	
 	1. No listings stored in session (message_content=None); Pull location and
 	category from session; call db and pull 4 entries and generate link from
 	pk; map links to user-viewable commands and send; update session.
+	"""
+
+	# location = User.user_loc.get(phone_num)
 	
+	displayed_items=[]
+	Listings.objects.order_by('-pub_date')[:4]
+
+	for counter, listing in enumerate(Listings.objects.order_by('-pub_date')[:4]):
+		request.session["active_urls"][counter] = reverse(name="for_sale", kwargs={'id':listing.pk})
+		displayed_items.append("%s. %s" % (counter, listing.header))
+
+	displayed_text = "\n".join(displayed_text)
+	send_message(PLIVO_NUMBER, request.session["phone_num"], displayed_text)
+	return HttpResponse(status=200)
+
+
+
+@csrf_exempt
+def listing_detail(session_key, category, message_content):
+	"""
 	2. Listings already stored in session; Parse message context and map
 	user to corresponding link. Using pk in link, call db and pull full
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
 
-	# get user location
 
-	phone_num = session_key
-	location = User.user_loc.get(phone_num)
-
-	if message_content == None:
-		# linkxyz = reverse(location, category, pk) <- goal
-		link1 = reverse("%s", Listings.header.filter(location, category, [-1:]) % category # need to return the last db item's pk where location and category match
-		link2 = Listings.header.filter(location, category, [-2:-1])
-		link3 = Listings.header.filter(location, category, [-3:-2])
-		Link4 = Listings.header.filter(location, category, [-4:-3])
-
-
-
-
-def search(request):
-	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4] #where are location and first_id defined?
-
+# def search(request):
+#	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4] 
 
 
 
