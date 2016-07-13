@@ -7,7 +7,7 @@ import plivo
 class SmsLinkHandlerMiddleware(object): 
 	def process_request(self, request):
 		messageuuid = request.POST['MessageUUID']
-		# message_content = request.POST['Text']
+		# message_content = request.POST['Text'] 
 		print "message_content is "+str(message_content)
 
 
@@ -28,7 +28,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			request.session["active_urls"] = {}
 			print "Cats!"
 		else:
-			request.path_info = request.session["active_urls"][int(message_content)] # rather than int, change to str in dictionary
+			request.path_info = request.session["active_urls"][int(SmsLinkhandlerMiddleware.message_content)] # rather than int, change to str in dictionary
 			print "Dogs!"
 			# insert catch if user puts in value other than dictionary
 			# remove extra spaces from user's input
