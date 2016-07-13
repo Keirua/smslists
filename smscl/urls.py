@@ -11,7 +11,7 @@ def bad(request):
 
 urlpatterns = patterns('',
     # Examples:
-    # url(r'^$', 'smscl.views.home', name='home'), #what is name for?
+    # url(r'^$', 'smscl.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
     url(r'^admin/', include(admin.site.urls)),
     url(r'^topmenu/', include('topmenu.urls')),

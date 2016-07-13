@@ -45,13 +45,22 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 	phone_num = request.session["phone_num"]
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
-	
-	# SEND
-	request.session["1."]="/listings/for_sale/"
-	request.session["2."]="/listings/wanted/"
-	request.session["3."]="/listings/jobs/"
-	request.session["4."]="/listings/announcements/"
+	print "def menu_2()"
+
+	request.session["active_urls"][1]="/listings/for_sale/"
+	request.session["active_urls"][2]="/listings/wanted/"
+	request.session["active_urls"][3]="/listings/jobs/"
+	request.session["active_urls"][4]="/listings/announcements/"
 	# request.session["5."]="/post/"
+
+	for link_value, url in request.session["active_urls"].items():
+		if link_value < 5:
+			print "link_value "+str(link_value)+" is "+str(url)
+
+	if "active_urls" in request.session:
+		print True
+	else:
+		print False
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
 		current_language.wanted, current_language.jobs,
@@ -74,17 +83,22 @@ def listings(request, category):
 	pk; map links to user-viewable commands and send; update session.
 	"""
 
+	print "def listings()"
+
 	# location = User.user_loc.get(phone_num)
 	
 	displayed_items=[]
-	Listings.objects.order_by('-pub_date')[:4]
+	# Listings.objects.order_by('-pub_date')[:4]
 
 	for counter, listing in enumerate(Listings.objects.order_by('-pub_date')[:4]):
-		request.session["active_urls"][counter] = reverse(name="for_sale", kwargs={'id':listing.pk})
+		request.session["active_urls"][counter] = reverse(name="for_sale", kwargs={'id':listing.pk}) # <- correct method to pass kwargs to subdomaine?
 		displayed_items.append("%s. %s" % (counter, listing.header))
 
-	displayed_text = "\n".join(displayed_text)
-	send_message(PLIVO_NUMBER, request.session["phone_num"], displayed_text)
+	displayed_items = "\n".join(displayed_items)
+# DEBUG PRINT
+	print "displayed_items = "+displayed_items
+# DEBUG PRINT
+	send_message(PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
 

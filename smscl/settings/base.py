@@ -170,6 +170,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     # 'django.contrib.sessions.middleware.SessionMiddleware', # replaced by modified session middleware (below)
+    # 'topmenu.middleware.SmsLinkHandlerMiddleware',
     'topmenu.middleware.SmsSessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
