@@ -172,7 +172,8 @@ MIDDLEWARE_CLASSES = (
     # 'django.contrib.sessions.middleware.SessionMiddleware', # replaced by modified session middleware (below)
     # 'topmenu.middleware.SmsLinkHandlerMiddleware',
     'topmenu.middleware.SmsSessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.locale.LocaleMiddleware', # locale middleware needs for sessions to exist
+    'django.middleware.common.CommonMiddleware', # common middleware needs to know which language to use (from locale middleware)
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     # 'cached_auth.Middleware',
