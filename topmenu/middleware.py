@@ -6,15 +6,15 @@ import plivo
 
 class SmsLinkHandlerMiddleware(object): 
 	def process_request(self, request):
-		messageuuid = request.POST['MessageUUID']
-		message_content = request.POST['Text']
+		self.messageuuid = request.POST['MessageUUID']
+		self.message_content = request.POST['Text']
 
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def process_request(self, request):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
 		# debug code/
-		print "message_content is "+str(message_content)
+		print "message_content is "+str(SmsLinkHandlerMiddleware.process_request.message_content)
 		# /debug code
 
 		try:
@@ -22,7 +22,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			# debug code/
 			print request.session["phone_num"]
 			# /debug code
-			
+
 		except AttributeError:
 
 			# debug code/
