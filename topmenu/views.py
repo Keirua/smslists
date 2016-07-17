@@ -45,7 +45,10 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 	phone_num = request.session["phone_num"]
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
+	
+	# debug code/
 	print "def menu_2()"
+	# /debug code
 
 	request.session["active_urls"][1]="/listings/for_sale/"
 	request.session["active_urls"][2]="/listings/wanted/"
@@ -53,6 +56,7 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 	request.session["active_urls"][4]="/listings/announcements/"
 	# request.session["5."]="/post/"
 
+	# debug code/
 	for link_value, url in request.session["active_urls"].items():
 		if link_value < 5:
 			print "link_value "+str(link_value)+" is "+str(url)
@@ -61,6 +65,7 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 		print True
 	else:
 		print False
+	# /debug code
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale, 
 		current_language.wanted, current_language.jobs,
@@ -83,7 +88,9 @@ def listings(request, category):
 	pk; map links to user-viewable commands and send; update session.
 	"""
 
+	# debug code/
 	print "def listings()"
+	# /debug code
 
 	# location = User.user_loc.get(phone_num)
 	
@@ -95,23 +102,26 @@ def listings(request, category):
 		displayed_items.append("%s. %s" % (counter, listing.header))
 
 	displayed_items = "\n".join(displayed_items)
-# DEBUG PRINT
+
+	# debug code/
 	print "displayed_items = "+displayed_items
-# DEBUG PRINT
+	# /debug code
+
 	send_message(PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
 
 
 @csrf_exempt
-def listing_detail(session_key, category, message_content):
+def listing_detail(request, category, listing_id):
+	# ^ CONFIRM: url(r'^/listings/(?P<category>\w+)/(?P<id>\d+)/', views.listing_detail, name='listing_detail') will pass correct args.
 	"""
-	2. Listings already stored in session; Parse message context and map
-	user to corresponding link. Using pk in link, call db and pull full
+	2. Using pk in link, call db and pull full
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
 
+	send_message(PLIVO_NUMBER, request.session["phone_num"], Listings.objects.detail(listing_id))
 
 # def search(request):
 #	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4] 
