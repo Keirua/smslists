@@ -103,6 +103,8 @@ def listings(request, category):
 
 	displayed_items = "\n".join(displayed_items)
 
+	request.session["active_urls"][5] ="/listings/" % displayed_items
+
 	# debug code/
 	print "displayed_items = "+displayed_items
 	# /debug code
@@ -121,6 +123,8 @@ def listing_detail(request, category, listing_id):
 	Update session.
 	"""
 
+
+	request.session["active_urls"][5] = 
 	send_message(PLIVO_NUMBER, request.session["phone_num"], Listings.objects.detail(listing_id))
 
 # def search(request):

@@ -5,9 +5,13 @@ from django.core.urlresolvers import reverse
 import plivo
 
 class SmsLinkHandlerMiddleware(object): 
-	def process_request(self, request):
+	def __init__ (self, request, messageuuid, message_content):
 		self.messageuuid = request.POST['MessageUUID']
 		self.message_content = request.POST['Text']
+
+	# debug code/
+	print SmsLinkHandlerMiddleware.message_content
+	# /debug code
 
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def process_request(self, request):
@@ -42,7 +46,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			# /debug code
 
 		else:
-			request.path_info = request.session["active_urls"][int(SmsLinkhandlerMiddleware.process_request.message_content)] # rather than int, change to str in dictionary
+			request.path_info = request.session["active_urls"][int(SmsLinkHandlerMiddleware.process_request.message_content)] # rather than int, change to str in dictionary
 			
 			# debug code/
 			print "Dogs!"
