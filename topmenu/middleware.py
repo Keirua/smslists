@@ -4,38 +4,17 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 import plivo
 
-class SmsLinkHandlerMiddleware(object): 
-	def __init__ (self, request, messageuuid, message_content):
-		self.messageuuid = request.POST['MessageUUID']
-		self.message_content = request.POST['Text']
-
-	# debug code/
-	print SmsLinkHandlerMiddleware.message_content
-	# /debug code
-
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def process_request(self, request):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
-
+		request.session = self.SessionStore(session_key)
+		message_content = request.POST['Text']
+		messageuuid = request.POST['MessageUUID']
 		# debug code/
-		print "message_content is "+str(SmsLinkHandlerMiddleware.process_request.message_content)
-		# /debug code
+		print "Does request.session exist? "+str(request.session.exists(session_key))
+		print self.SessionStore
 
-		try:
-			
-			# debug code/
-			print request.session["phone_num"]
-			# /debug code
-
-		except AttributeError:
-
-			# debug code/
-			print "AttributeError"
-			# /debug code
-
-			request.session = self.SessionStore(session_key)
-		# session is created ^, now can store phone_num in session. why is this accessed in this way?
-			request.session["phone_num"] = session_key
+		request.session["phone_num"] = session_key
 
 		if "active_urls" not in request.session:
 			request.path_info = '/topmenu/menu_2/'
@@ -46,7 +25,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			# /debug code
 
 		else:
-			request.path_info = request.session["active_urls"][int(SmsLinkHandlerMiddleware.process_request.message_content)] # rather than int, change to str in dictionary
+			request.path_info = request.session["active_urls"][int(message_content)] # rather than int, change to str in dictionary
 			
 			# debug code/
 			print "Dogs!"

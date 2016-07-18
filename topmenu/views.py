@@ -103,7 +103,9 @@ def listings(request, category):
 
 	displayed_items = "\n".join(displayed_items)
 
-	request.session["active_urls"][5] ="/listings/" % displayed_items
+
+	# thinking of ways to store the last message sent
+	# request.session["active_urls"][5] ="/listings/" % displayed_items
 
 	# debug code/
 	print "displayed_items = "+displayed_items
@@ -123,8 +125,9 @@ def listing_detail(request, category, listing_id):
 	Update session.
 	"""
 
-
-	request.session["active_urls"][5] = 
+	# need 'back' button or some way to recall last 4 sent. DB call or add as tuple to a dictionary?
+	# request.session["active_urls"][5] = 
+	# can listing_id 
 	send_message(PLIVO_NUMBER, request.session["phone_num"], Listings.objects.detail(listing_id))
 
 # def search(request):

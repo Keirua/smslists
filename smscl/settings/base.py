@@ -170,7 +170,7 @@ INSTALLED_APPS = (
 
 MIDDLEWARE_CLASSES = (
     # 'django.contrib.sessions.middleware.SessionMiddleware', # replaced by modified session middleware (below)
-    'topmenu.middleware.SmsLinkHandlerMiddleware',
+    # 'topmenu.middleware.SmsLinkHandlerMiddleware',
     'topmenu.middleware.SmsSessionMiddleware',
     'django.middleware.locale.LocaleMiddleware', # locale middleware needs for sessions to exist
     'django.middleware.common.CommonMiddleware', # common middleware needs to know which language to use (from locale middleware)
@@ -208,7 +208,7 @@ USE_TZ = True
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#site-id
 SITE_ID = 1
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 ########## STATIC FILE CONFIGURATION
 # Static files get collected here upon deployment
@@ -265,6 +265,9 @@ SESSION_COOKIE_HTTPONLY = True
 
 # Set this to true if you are using https
 SESSION_COOKIE_SECURE = False
+
+# Save every session request (added 7/18)
+SESSION_SAVE_EVERY_REQUEST = True
 
 ########## END SECURITY CONFIGURATION
 
