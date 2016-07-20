@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 import plivo
 
+# need to discuss
 def _load_and_keep_session_key(orig):
 	def wrapper(self):
 		session_key = self.session_key
@@ -16,7 +17,7 @@ def _load_and_keep_session_key(orig):
 
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def __init__(self):
-		super(SmsSessionMiddleware, self).__init__()
+		super(SmsSessionMiddleware, self).__init__() # discuss purpose of super on __init__()
 		self.SessionStore.load = _load_and_keep_session_key(self.SessionStore.load)
 
 	def process_request(self, request):
