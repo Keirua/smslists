@@ -4,15 +4,26 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 import plivo
 
+def _load_and_keep_session_key(orig):
+	def wrapper(self):
+		session_key = self.session_key
+		result = orig(self)
+		self._session_key = session_key
+
+		return result
+
+	return wrapper
+
 class SmsSessionMiddleware(middleware.SessionMiddleware):
+	def __init__(self):
+		super(SmsSessionMiddleware, self).__init__()
+		self.SessionStore.load = _load_and_keep_session_key(self.SessionStore.load)
+
 	def process_request(self, request):
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
 		request.session = self.SessionStore(session_key=session_key)
-		# Force loading and caching of session (this clears the session key if session doesn't exist yet)
-		# NOTE: this could be fixed by monkey patching self.SessionStore.load
 		request.session["phone_num"] = session_key
-		request.session._session_key = session_key
 
 		message_content = request.POST['Text']
 		messageuuid = request.POST['MessageUUID']
