@@ -17,4 +17,3 @@ urlpatterns = patterns('',
     url(r'^topmenu/', include('topmenu.urls')),
     url(r'^bad/$', bad), #need to update this for django 1.10?
 )
-
