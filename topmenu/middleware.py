@@ -21,10 +21,14 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		self.SessionStore.load = _load_and_keep_session_key(self.SessionStore.load)
 
 	def process_request(self, request):
+
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
 		request.session = self.SessionStore(session_key=session_key)
 		request.session["phone_num"] = session_key
+
+		# 30 min session expiration time
+		request.session.set_expiry(1800)
 
 		message_content = request.POST['Text']
 		messageuuid = request.POST['MessageUUID']
