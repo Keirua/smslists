@@ -43,6 +43,7 @@ def send_message(source, destination, menu_text):
 
 @csrf_exempt
 def menu_2(request): # 7/9 changed phone_num to session_key.
+
 	# This could be a constant at the top of the file, but then it will cause a circular import problem
 	TOP_MENU_URLS = {
 		"1": reverse('topmenu:listings', kwargs={"category": "for_sale"}),
@@ -109,7 +110,8 @@ def listings(request, category):
 		displayed_items.append("%s. %s" % (counter, listing.header))
 
 	# TODO: handle the case when there are no items in the listing categor
-
+	request.session["active_urls"][5] = reverse('topment:post_listing')
+	request.session["active_urls"][6] = reverse('topmenu:menu_2')
 
 	displayed_items = "\n".join(displayed_items)
 
@@ -126,20 +128,31 @@ def listings(request, category):
 
 @csrf_exempt
 def listing_detail(request, category, listing_id):
-	# ^ CONFIRM: url(r'^/listings/(?P<category>\w+)/(?P<id>\d+)/', views.listing_detail, name='listing_detail') will pass correct args.
 	"""
 	2. Using pk in link, call db and pull full
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
 
-	# need 'back' button or some way to recall last 4 sent. DB call or add as tuple to a dictionary?
-	# request.session["active_urls"][5] =
-	# can listing_id
 	send_message(PLIVO_NUMBER, request.session["phone_num"], Listing.objects.detail(listing_id))
+	return HttpResponse(status=200)
 
+
+	request.session["active_urls"][5] = reverse('topmenu:listings')
 # def search(request):
 #	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4]
+
+@csrf_exempt
+def post_listing(request, category, listing_id):
+	"""
+	Once within a category, an user can submit a new post which will be 
+	committed to the db and be present for all other users. MVP will be 
+	location-blind, but eventually location will be a requirement.
+	"""
+
+
+
+
 
 
 

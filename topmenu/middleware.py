@@ -28,7 +28,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		request.session["phone_num"] = session_key
 
 		# 30 min session expiration time
-		request.session.set_expiry(1800)
+		request.session.set_expiry(300)
 
 		message_content = request.POST['Text']
 		messageuuid = request.POST['MessageUUID']
