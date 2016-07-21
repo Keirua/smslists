@@ -18,6 +18,7 @@ class Listing(models.Model):
 	detail = models.CharField(max_length=140)
 	pub_date = models.DateTimeField(auto_now_add=True)
 	owner = models.ForeignKey(User)
+	category = models.CharField(max_length=40)
 
 	def __str__(self):
 		return "%s, %s" % (self.header, self.detail)

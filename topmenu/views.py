@@ -105,12 +105,14 @@ def listings(request, category):
 	#
 	for counter, listing in enumerate(Listing.objects.order_by('-pub_date')[:4]):
 		request.session["active_urls"][str(counter)] = reverse(
-			'topmenu:listing_detail', kwargs={'id':listing.pk, 'category': category}
+			'topmenu:listing_detail', kwargs={'id':listing.pk, 'category':category}
 		)
 		displayed_items.append("%s. %s" % (counter, listing.header))
 
 	# TODO: handle the case when there are no items in the listing categor
-	request.session["active_urls"][5] = reverse('topment:post_listing')
+
+	request.session["active_urls"].clear()
+	request.session["active_urls"][5] = reverse('topment:post_listing', kwargs={'category':category})
 	request.session["active_urls"][6] = reverse('topmenu:menu_2')
 
 	displayed_items = "\n".join(displayed_items)
@@ -133,26 +135,97 @@ def listing_detail(request, category, listing_id):
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
+	request.session["active_urls"].clear()
+	request.session["active_urls"][6] = reverse('topmenu:listings')
 
 	send_message(PLIVO_NUMBER, request.session["phone_num"], Listing.objects.detail(listing_id))
 	return HttpResponse(status=200)
 
 
-	request.session["active_urls"][5] = reverse('topmenu:listings')
 # def search(request):
 #	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4]
 
 @csrf_exempt
-def post_listing(request, category, listing_id):
+def post_listing(request, category):
 	"""
 	Once within a category, an user can submit a new post which will be 
 	committed to the db and be present for all other users. MVP will be 
 	location-blind, but eventually location will be a requirement.
 	"""
 
+	post_message_1 = "Listing subject? (max 40 characters) Reply '9' to return to main menu."
 
+	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 
+	post_message_3 = "Please review your listing."
 
+	post_message_4 = "Subject: %s" % request.session["post_sequence"]["post_header"]
+
+	# post_message_5 = "Reply '1' to rewrite subject. Reply '9' to return to main menu."
+
+	post_message_6 = "Description: %s" % request.session["post_sequence"]["post_detail"]
+
+	post_message_7 = "'1' to confirm listing or '9' to delete listing and return to main menu."
+
+	request.session["active_urls"].clear()
+	request.session["active_urls"][9] = reverse('topmenu:post_listing', kwargs={'category':category})
+
+	if "post_sequence" not in request.session:
+		request.session["post_sequence"] = {}
+		request.session["post_sequence"]["category"] = category
+		request.session["post_sequence"]["stage_1"] = True
+		# request listing subject
+		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_1)
+		return HttpResponse(status=200)
+
+	else:
+		if request.session["post_sequence"]["stage_1"] == True: # check that ^ stage_1 becoming True above doesn't engage this
+			
+			# (insert max 40 char validation here)
+
+			# request listing description
+			send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_2)
+			request.session["post_sequence"]["stage_1"] = False
+			request.session["post_sequence"]["stage_2"] = True
+			return HttpResponse(status=200)
+		
+		elif request.session["post_sequence"]["stage_2"] == True:
+
+			# (insert max 140 char validation here)
+
+			# Post confirmation texts
+			send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
+			send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
+			send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_6)
+			send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_7)
+
+			request.session["post_sequence"]["stage_2"] = False
+			request.session["post_sequence"]["stage_3"] = True
+	
+			return HttpResponse(status=200)
+
+@csrf_exempt
+def post_listing_commit(request, category):
+
+	user_post = Listing()
+
+	confirmation_message = "Listing successfully posted in %s." % category
+
+	cancellation_message = "Listing cancelled. Returning to main menu."
+
+	if request.session["post_sequence"]["post_conf"] == str(1):
+		user_post.header = request.session["post_sequence"]["post_header"]
+		user_post.detail = request.session["post_sequence"]["post_detail"]
+		user_post.category = request.session["post_sequence"]["category"]
+		user_post.save()
+		send_message(PLIVO_NUMBER, request.session["phone_num"], confirmation_message)
+		reverse('topmenu/menu_2')
+		return HttpResponse(status=200)
+
+	else:
+		request.session["post_sequence"].clear()
+		reverse('topmenu/menu_2')
+		return HttpResponse(status=200)
 
 
 

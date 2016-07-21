@@ -11,7 +11,8 @@ urlpatterns = [
 
 	# NOTE: category doesn't matter/superflous here, since listings have unique id's across categories anyway
 	url(r'^/listings/(?P<category>\w+)/(?P<id>\d+)/', views.listing_detail, name='listing_detail'),
-	url(r'^/post_listing/(?P<category>\w+)/(?P<id>\d+)/', views.post_listing, name='post_listing'),
+	url(r'^/post_listing/(?P<category>\w+)/', views.post_listing, name='post_listing'),
+	url(r'^/post_listing_commit/', views.post_listing_commit, name='post_listing_commit'),
 	]
 
 
