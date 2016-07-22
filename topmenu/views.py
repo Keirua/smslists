@@ -145,6 +145,7 @@ def listing_detail(request, category, listing_id):
 # def search(request):
 #	Items.objects.filter(location=request.GET['location'], id_get=int(request.GET['first_id']))[:4]
 
+# rewrite:
 @csrf_exempt
 def post_listing(request, category):
 	"""

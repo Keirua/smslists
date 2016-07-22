@@ -38,7 +38,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			request.path_info = '/topmenu/menu_2/'
 			request.session["active_urls"] = {}
 			
-
+			# rewrite:
 		else:
 			if request.session["post_sequence"]["stage_1"] == True:
 				if int(message_content) == 9:
