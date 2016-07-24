@@ -84,7 +84,8 @@ def listings(request, category):
 	category from session; call db and pull 4 entries and generate link from
 	pk; map links to user-viewable commands and send; update session.
 	"""
-
+	print "listings()"
+	
 	displayed_items=[]
 
 	#
