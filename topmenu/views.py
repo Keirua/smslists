@@ -64,6 +64,8 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 
 	request.session["active_urls"] = TOP_MENU_URLS
 
+	request.session ["active_urls"][5] = reverse("post_subject_request")
+
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
 		current_language.wanted, current_language.jobs,
 		current_language.announcements)
@@ -85,7 +87,7 @@ def listings(request, category):
 	pk; map links to user-viewable commands and send; update session.
 	"""
 	print "listings()"
-	
+
 	displayed_items=[]
 
 	#
@@ -98,7 +100,7 @@ def listings(request, category):
 	# TODO: handle the case when there are no items in the listing categor
 
 	request.session["active_urls"].clear()
-	request.session["active_urls"][5] = reverse('topment:post_subject_request', kwargs={'category':category})
+	request.session["active_urls"][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 	request.session["active_urls"][6] = reverse('topmenu:menu_2')
 
 	displayed_items = "\n".join(displayed_items)
