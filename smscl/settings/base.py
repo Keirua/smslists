@@ -197,7 +197,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'America/Los_Angeles'
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-i18n
-USE_I18N = True
+USE_I18N = True # making this false prevents server from crashing and instead returns 404 errors to anything past menu_2
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#use-l10n
 USE_L10N = True

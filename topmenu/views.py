@@ -51,7 +51,7 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
 		"4": reverse('topmenu:listings', kwargs={"category": "announcements"})
 	}
-
+	request.session.flush()
 	phone_num = request.session["phone_num"]
 	# get user language
 	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
@@ -64,7 +64,7 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 
 	request.session["active_urls"] = TOP_MENU_URLS
 
-	request.session ["active_urls"][5] = reverse("post_subject_request")
+	# request.session ["active_urls"][5] = reverse("post_subject_request")
 
 	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
 		current_language.wanted, current_language.jobs,
@@ -152,9 +152,9 @@ def post_description_request(request, category):
 	description. Set "active_urls "default_url" key to value 
 	("topmenu:post_review").
 	"""
-	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
+	request.session["new_post_subject"] = request.session["default_data"] # CHANGED FROM request.POST
 
-	request.session["new_post_subject"] = request.POST["default_data"]
+	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 
 	request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
 		kwargs={'category':category})
@@ -168,15 +168,14 @@ def post_review(request, category):
 	description for review. Set "active_urls "default_url" key to value 
 	("topmenu:post_commit").
 	"""
+	request.session["new_post_description"] = request.session["default_data"] # changed from request.POST
+
 	post_message_3 = "Please review your listing."
 	post_message_4 = "Subject: %s" % request.session["new_post_subject"]
 	post_message_5 = "Description: %s" % request.session["new_post_description"]
 	post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
 
-	request.session["new_post_description"] = request.POST["default_data"]
-
-	request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", 
-		kwargs={'category':category})
+	request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_5)
@@ -184,25 +183,28 @@ def post_review(request, category):
 	return HttpResponse(status=200)
 
 @csrf_exempt
-def post_commit(reques, category):
+def post_commit(request, category):
 	"""
 	"""
 	confirmation_message = "Listing successfully posted in %s." % category
 	cancellation_message = "Listing cancelled. Returning to main menu."
 	invalid_input = "Input not recognized. Reply '1' to confirm posting or '9' to cancel."
 
-	if request.POST["default_data"] == "1":
+	print "request.session['default_data'] ="+str(request.session["default_data"])
+	if request.session["default_data"] == 1: # changed from request.POST
 		Listing.objects.create(header=request.session["new_post_subject"], 
 			detail=request.session["new_post_description"], category=category)
 		send_message(PLIVO_NUMBER, request.session["phone_num"], confirmation_message)
 		return HttpResponse(status=200)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
-	elif request.POST["default_data"] == "9":
+	elif request.session["default_data"] == "9": # changed from request.POST
 		send_message(PLIVO_NUMBER, request.session["phone_num"], cancellation_message)
-		del request.session["default_url"]
+		
+		del request.session["active_urls"]["default_url"]
 		del request.session["default_data"]
-		reverse("topmenu:menu_2", kwargs={'category':category})
+
+		reverse("topmenu:menu_2")
 		return HttpResponse(status=200)
 	
 	else:

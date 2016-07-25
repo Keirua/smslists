@@ -38,8 +38,9 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			request.session["active_urls"] = {}
 			
 		else:
-			if "default_url" in request.session:
-				request.POST["default_data"] = message_content
-				request.path_info = active_urls["default_url"]
+			if "default_url" in request.session["active_urls"]:
+				print request.session["active_urls"]["default_url"]
+				request.session["default_data"] = message_content # CHANGED FROM REQUEST.SESSION
+				request.path_info = request.session["active_urls"]["default_url"]
 			else:
-				request.path_info = request.session["active_urls"]
+				request.path_info = request.session["active_urls"][message_content]
