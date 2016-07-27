@@ -42,20 +42,31 @@ def send_message(source, destination, menu_text):
 	return response
 
 @csrf_exempt
-def menu_2(request, create_user=None): # 7/9 changed phone_num to session_key.
+def session_flush(request):
+	#immediately clear session
+	print "Clearing session data."
+	
+	request.session.flush()
+	reverse('topmenu:menu_2')
+	
+	return HttpResponse(status=200)
+
+@csrf_exempt
+def menu_2(request, create_user=None): 
 
 	# This could be a constant at the top of the file, but then it will cause a circular import problem
 	TOP_MENU_URLS = {
 		"1": reverse('topmenu:listings', kwargs={"category": "for_sale"}),
 		"2": reverse('topmenu:listings', kwargs={"category": "wanted"}),
 		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
-		"4": reverse('topmenu:listings', kwargs={"category": "announcements"})
+		"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
+		# special development session flush
+		"00": reverse('topmenu:session_flush')
 	}
-	# request.session.flush() 7/26 figure out how to flush certain elements but not everything
 
 	phone_num = request.session["phone_num"]
 	
-	if create_user not None:
+	if create_user is not None:
 		print "menu_2/create_user"
 		
 		User.objects.create(phone_num=phone_num, user_loc="Los Angeles")
@@ -72,7 +83,7 @@ def menu_2(request, create_user=None): # 7/9 changed phone_num to session_key.
 		send_message(source = PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
 		return HttpResponse(status=200)
-		
+
 	else:
 		print "menu_2()"
 		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
@@ -151,7 +162,7 @@ def post_subject_request(request, category):
 	post_message_1 = "Listing subject? (max 40 characters) Reply '9' to return to main menu."
 
 	request.session["active_urls"].clear()
-	request.session["active_urls"][9] = reverse("topmenu:menu_2")
+	request.session["active_urls"]["9"] = reverse("topmenu:menu_2")
 	request.session["active_urls"]["default_url"] = reverse("topmenu:post_description_request", kwargs={'category':category})
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_1)
 	return HttpResponse(status=200)
