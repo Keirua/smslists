@@ -5,8 +5,8 @@ app_name = "topmenu"
 
 urlpatterns = [
 	url(r'^$', views.index, name='index'),
-	# url(r'^plivo_endpoint/$', views.plivo_endpoint, name='plivo_endpoint')
-	url(r'^menu_2/$', views.menu_2, name='menu_2'), # name arg used for reverse URL lookup
+	url(r'^menu_2/$', views.menu_2, name='menu_2'),
+	# why isn't 'create_user' being passed to view and thus making create_user != its default value of none? 
 	url(r'^menu_2/create_user/$', views.menu_2, name='menu_2/create_user'),
 	url(r'^listings/(?P<category>\w+)/', views.listings, name='listings'),
 	url(r'^session_flush/$', views.session_flush, name='session_flush'),

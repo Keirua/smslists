@@ -34,7 +34,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		messageuuid = request.POST['MessageUUID']
 
 		if "active_urls" not in request.session:
-			request.path_info = "/topmenu/menu_2/"
+			request.path_info = "/topmenu/menu_2/create_user/"
 			request.session["active_urls"] = {}
 			
 		else:
