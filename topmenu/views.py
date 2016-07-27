@@ -42,7 +42,7 @@ def send_message(source, destination, menu_text):
 	return response
 
 @csrf_exempt
-def menu_2(request): # 7/9 changed phone_num to session_key.
+def menu_2(request, create_user=None): # 7/9 changed phone_num to session_key.
 
 	# This could be a constant at the top of the file, but then it will cause a circular import problem
 	TOP_MENU_URLS = {
@@ -51,31 +51,42 @@ def menu_2(request): # 7/9 changed phone_num to session_key.
 		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
 		"4": reverse('topmenu:listings', kwargs={"category": "announcements"})
 	}
-	request.session.flush()
+	# request.session.flush() 7/26 figure out how to flush certain elements but not everything
+
 	phone_num = request.session["phone_num"]
-	# get user language
-	current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language] #ADD THIS TO SESSION
+	
+	if create_user not None:
+		print "menu_2/create_user"
+		
+		User.objects.create(phone_num=phone_num, user_loc="Los Angeles")
+		
+		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+		
+		request.session["active_urls"].clear()
+		request.session["active_urls"] = TOP_MENU_URLS
+		
+		menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
+		current_language.wanted, current_language.jobs, 
+		current_language.announcements)
+		
+		send_message(source = PLIVO_NUMBER, destination=phone_num,
+		menu_text=menu_text)
+		return HttpResponse(status=200)
+		
+	else:
+		print "menu_2()"
+		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 
-	# debug code/
-	print "def menu_2()"
-	# /debug code
+		request.session["active_urls"].clear()
+		request.session["active_urls"] = TOP_MENU_URLS
 
-	request.session["active_urls"].clear()
-
-	request.session["active_urls"] = TOP_MENU_URLS
-
-	# request.session ["active_urls"][5] = reverse("post_subject_request")
-
-	menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
+		menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
 		current_language.wanted, current_language.jobs,
 		current_language.announcements)
 
-	send_message(source = PLIVO_NUMBER, destination=phone_num,
+		send_message(source = PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
-	return HttpResponse(status=200)
-
-	# RECEIVE (need to build)
-
+		return HttpResponse(status=200)
 
 @csrf_exempt
 def listings(request, category):
@@ -191,9 +202,8 @@ def post_commit(request, category):
 	invalid_input = "Input not recognized. Reply '1' to confirm posting or '9' to cancel."
 
 	print "request.session['default_data'] ="+str(request.session["default_data"])
-	if request.session["default_data"] == 1: # changed from request.POST
-		Listing.objects.create(header=request.session["new_post_subject"], 
-			detail=request.session["new_post_description"], category=category)
+	if request.session["default_data"] == "1": # changed from request.POST
+		Listing.objects.create(header=request.session["new_post_subject"], detail=request.session["new_post_description"], category=category)
 		send_message(PLIVO_NUMBER, request.session["phone_num"], confirmation_message)
 		return HttpResponse(status=200)
 	
