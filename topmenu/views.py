@@ -8,7 +8,8 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .languages import *
-import plivo
+import plivo, time
+
 
 
 PLIVO_NUMBER = "18058643381" # in the future will call deployment.txts
@@ -48,7 +49,7 @@ def session_flush(request):
 	
 	request.session.flush()
 	reverse('topmenu:menu_2')
-	
+
 	return HttpResponse(status=200)
 
 @csrf_exempt
@@ -199,8 +200,11 @@ def post_review(request, category):
 
 	request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
+	time.sleep(0.5)
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
+	time.sleep(0.5)
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_5)
+	time.sleep(0.5)
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_6)
 	return HttpResponse(status=200)
 
