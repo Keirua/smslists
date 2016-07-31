@@ -15,12 +15,31 @@ def _load_and_keep_session_key(orig):
 
 	return wrapper
 
+def session_status_tracker(request):
+	if hasattr(request, 'session'):
+		if 'phone_num' in request.session.keys():
+			print "request.session['phone_num'] = %s" % request.session['phone_num']
+		else:
+			print "request.session['phone_num'] = (empty)"
+		print "request.path_info = %s" % request.path_info
+		print "request.session['active_urls'] = "
+		for keys, values in request.session['active_urls'].items():
+			print "%s:%s" % (keys, values)
+		if 'default_data' in request.session.keys():
+			print "request.session['default_data'] = %s" % request.session['default_data']
+		else:
+			print "request.session['default_data'] = (empty)"
+	else:
+		print "New session."
+
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def __init__(self):
 		super(SmsSessionMiddleware, self).__init__() # discuss purpose of super on __init__()
 		self.SessionStore.load = _load_and_keep_session_key(self.SessionStore.load)
 
 	def process_request(self, request):
+		print 'beginning of process_request()'
+		session_status_tracker(request)
 
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
@@ -36,11 +55,16 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		if "active_urls" not in request.session:
 			request.path_info = "/topmenu/menu_2/create_user/"
 			request.session["active_urls"] = {}
+			print "Active_urls not in request.session. End of process_request()."
+			session_status_tracker(request)
 			
 		else:
 			if "default_url" in request.session["active_urls"]:
-				print request.session["active_urls"]["default_url"]
 				request.session["default_data"] = message_content # CHANGED FROM REQUEST.SESSION
 				request.path_info = request.session["active_urls"]["default_url"]
+				print "Default_url in request.session. End of process_request()."
+				session_status_tracker(request)
 			else:
 				request.path_info = request.session["active_urls"][message_content]
+				print "request.path_info = request.session['active_urls'][message_content]. End of process_request()."
+				session_status_tracker(request)
