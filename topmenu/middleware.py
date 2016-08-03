@@ -19,16 +19,16 @@ def session_status_tracker(request):
 	if hasattr(request, 'session'):
 		if 'phone_num' in request.session.keys():
 			print "request.session['phone_num'] = %s" % request.session['phone_num']
+			print "request.path_info = %s" % request.path_info
+			print "request.session['active_urls'] = "
+			for keys, values in request.session['active_urls'].items():
+				print "%s:%s" % (keys, values)
+			if 'default_data' in request.session.keys():
+				print "request.session['default_data'] = %s" % request.session['default_data']
+			else:
+				print "request.session['default_data'] = (empty)"
 		else:
 			print "request.session['phone_num'] = (empty)"
-		print "request.path_info = %s" % request.path_info
-		print "request.session['active_urls'] = "
-		for keys, values in request.session['active_urls'].items():
-			print "%s:%s" % (keys, values)
-		if 'default_data' in request.session.keys():
-			print "request.session['default_data'] = %s" % request.session['default_data']
-		else:
-			print "request.session['default_data'] = (empty)"
 	else:
 		print "New session."
 
