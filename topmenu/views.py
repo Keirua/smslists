@@ -81,7 +81,7 @@ def menu_2(request, create_user=None):
 		current_language.wanted, current_language.jobs, 
 		current_language.announcements)
 		
-		send_message(source = PLIVO_NUMBER, destination=phone_num,
+		send_message(source=PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
 		return HttpResponse(status=200)
 
@@ -96,7 +96,7 @@ def menu_2(request, create_user=None):
 		current_language.wanted, current_language.jobs,
 		current_language.announcements)
 
-		send_message(source = PLIVO_NUMBER, destination=phone_num,
+		send_message(source=PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
 		return HttpResponse(status=200)
 

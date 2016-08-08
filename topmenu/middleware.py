@@ -43,7 +43,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
-		request.session = self.SessionStore(session_key=session_key)
+		request.session = self.SessionStore(session_key=session_key) # does SessionStore erase existing session w/ same session key?
 		request.session["phone_num"] = session_key
 
 		request.session.set_expiry(300)
@@ -51,19 +51,19 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		message_content = request.POST['Text']
 		messageuuid = request.POST['MessageUUID']
 
-		if "active_urls" not in request.session:
-			request.path_info = "/topmenu/menu_2/create_user/"
-			request.session["active_urls"] = {}
-			print "Active_urls not in request.session. End of process_request()."
+		if 'active_urls' not in request.session:
+			request.path_info = '/topmenu/menu_2/create_user/'
+			request.session['active_urls'] = {}
+			print 'Active_urls not in request.session. End of process_request().'
 			session_status_tracker(request)
 			
 		else:
-			if "default_url" in request.session["active_urls"]:
-				request.session["default_data"] = message_content # CHANGED FROM REQUEST.SESSION
-				request.path_info = request.session["active_urls"]["default_url"]
-				print "Default_url in request.session. End of process_request()."
+			if 'default_url' in request.session['active_urls']:
+				request.session['default_data'] = message_content
+				request.path_info = request.session['active_urls']['default_url']
+				print 'Default_url in request.session. End of process_request().'
 				session_status_tracker(request)
 			else:
-				request.path_info = request.session["active_urls"][message_content]
+				request.path_info = request.session['active_urls'][message_content]
 				print "request.path_info = request.session['active_urls'][message_content]. End of process_request()."
 				session_status_tracker(request)
