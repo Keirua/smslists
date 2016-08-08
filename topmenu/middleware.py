@@ -46,7 +46,6 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		request.session = self.SessionStore(session_key=session_key)
 		request.session["phone_num"] = session_key
 
-		# 5 min session expiration time
 		request.session.set_expiry(300)
 
 		message_content = request.POST['Text']
