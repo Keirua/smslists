@@ -12,10 +12,11 @@ class SmsSessionMiddlewareTest(unittest.TestCase):
 		pass
 
 	def test_process_request_new_session(self):
-		"""Process request with a new session should return None.
+		"""
+		Process request with a new session should return None.
 		Session is instantiated and exists as an attribute of request."""
 		self.assertEqual(self.ssm.process_request(self.request), None)
-		self.assertIsInstance(self.request.session, ssm.session) # correct way to access Session object?
+		self.assertIsInstance(self.request.session, self.ssm.session) # correct way to access Session object?
 
 	def test_process_request_existing_session(self):
 		"""Process request with an existing session should return None.
@@ -24,7 +25,7 @@ class SmsSessionMiddlewareTest(unittest.TestCase):
 		self.request.session['phone_num'] = 18182857345
 		self.assertEqual(self.ssm.process_request(self.request), None)
 		self.assertIsInstance(self.request.session, self.ssm.session)
-		self.assertEqual(self.request.session[phone_num], request.session[phone_num])
+		self.assertEqual(self.request.session[phone_num], self.request.session[phone_num])
 		self.assertEqual(self.ssm.process_request(self.request).session_key, self.request.session['phone_num'])
 		self.assertIn(self.ssm.process_request(self.request))
 
