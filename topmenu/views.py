@@ -146,24 +146,24 @@ def listing_detail(request, category, listing_id):
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
-	request.session["active_urls"].clear()
-	request.session["active_urls"][6] = reverse('topmenu:listings')
+	request.session['active_urls'].clear()
+	request.session['active_urls'][6] = reverse('topmenu:listings')
 
-	send_message(PLIVO_NUMBER, request.session["phone_num"], Listing.objects.detail(listing_id))
+	send_message(PLIVO_NUMBER, request.session['phone_num'], Listing.objects.detail(listing_id))
 	return HttpResponse(status=200)
 
 @csrf_exempt
 def post_subject_request(request, category):
 	"""
-	Send user SMS requesting listing subject. Set "active_urls" "default_url"
-	key to value reverse("topmenu:post_description_request"). 
+	Send user SMS requesting listing subject. Set 'active_urls' 'default_url'
+	key to value reverse('topmenu:post_description_request'). 
 	Return HttpResponse 200.
 	"""
 	# all user text will be migrated to locale directory
 	post_message_1 = "Listing subject? (max 40 characters) Reply '9' to return to main menu."
 
 	request.session["active_urls"].clear()
-	request.session["active_urls"]["9"] = reverse("topmenu:menu_2")
+	request.session["active_urls"]["9"] = reverse("topmenu:menu_2") # 8/9 < THIS IS USELESS. IF DEFAULT_URL EXISTS, MESSAGE CONTENT IGNORED
 	request.session["active_urls"]["default_url"] = reverse("topmenu:post_description_request", kwargs={'category':category})
 	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_1)
 	return HttpResponse(status=200)
@@ -175,7 +175,7 @@ def post_description_request(request, category):
 	description. Set "active_urls "default_url" key to value 
 	("topmenu:post_review").
 	"""
-	request.session["new_post_subject"] = request.session["default_data"] # CHANGED FROM request.POST
+	request.session["new_post_subject"] = request.session["default_data"]
 
 	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 
@@ -191,7 +191,7 @@ def post_review(request, category):
 	description for review. Set "active_urls "default_url" key to value 
 	("topmenu:post_commit").
 	"""
-	request.session["new_post_description"] = request.session["default_data"] # changed from request.POST
+	request.session['new_post_description'] = request.session['default_data'] # changed from request.POST
 
 	post_message_3 = "Please review your listing."
 	post_message_4 = "Subject: %s" % request.session["new_post_subject"]
@@ -216,20 +216,21 @@ def post_commit(request, category):
 	cancellation_message = "Listing cancelled. Returning to main menu."
 	invalid_input = "Input not recognized. Reply '1' to confirm posting or '9' to cancel."
 
-	print "request.session['default_data'] ="+str(request.session["default_data"])
-	if request.session["default_data"] == "1": # changed from request.POST
-		Listing.objects.create(header=request.session["new_post_subject"], detail=request.session["new_post_description"], category=category)
-		send_message(PLIVO_NUMBER, request.session["phone_num"], confirmation_message)
+	print "request.session['default_data'] ="+str(request.session['default_data'])
+	if request.session['default_data'] == '1': # changed from request.POST
+		Listing.objects.create(header=request.session['new_post_subject'], detail=request.session['new_post_description'], category=category)
+		send_message(PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
+		request.session['active_urls']['default_url'] = reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
-	elif request.session["default_data"] == "9": # changed from request.POST
-		send_message(PLIVO_NUMBER, request.session["phone_num"], cancellation_message)
+	elif request.session['default_data'] == '9': # changed from request.POST
+		send_message(PLIVO_NUMBER, request.session['phone_num'], cancellation_message)
 		
-		del request.session["active_urls"]["default_url"]
-		del request.session["default_data"]
+		del request.session['active_urls']['default_url']
+		del request.session['default_data']
 
-		reverse("topmenu:menu_2")
+		reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
 	
 	else:

@@ -6,33 +6,40 @@ from topmenu import views
 from django.test.client import ClientHandler
 import unitttest
 
-class SessionHandler(ClientHandler):
-	def get_response(self, request):
-		response = super(SessionHandler, self).get_response(request)
-		respon
+class BadRequestArg(unitttest.TestCase):
+	pass
 
-class test_menu_2(unitttest.TestCase):
-	def setUp(self):
-		
+class CorrectSMSSent(unitttest.TestCase):
+	def test_post_subject_request(self):
+		pass
+	def test_post_description_request(self):
+		pass
+	def test_post_review(self):
+		pass
+	def test_post_commit(self):
+		pass
+
+class DefaultDataHandledCorrectly(unitttest.TestCase):
+	def test_post_description_request(self):
+		"""Tests that following post_subject_request, 
+		request.session['default_data'] == request.session['new_post_subject']
+		"""
+
+		self.assertEqual(request.session['new_post_subject'], request.session['default_data'])
+
+	def test_post_review(self):
+		"""Tests that following post_description_request, 
+		request.session['default_data'] == request.session['new_post_description']
+		"""
+
+		self.assertEqual(request.session['new_post_description'], request.session['default_data'])
+
+	def test_post_commit(self):
+		"""
+		"""
+
+		if request.session['default_data'] == '1':
+			self.assertEqual()
 
 
-from django.test import TestCase
-from django.test.client import ClientHandler
 
-class SessionHandler(ClientHandler):
-    def get_response(self, request):
-        response = super(SessionHandler, self).get_response(request)
-        response.session = request.session.copy()
-        return response
-
-class SessionTestCase(TestCase):
-    def _pre_setup(self):
-        super(SessionTestCase, self)._pre_setup()
-        self.client.handler = SessionHandler()
-
-class FooTestCase(SessionTestCase):
-    def test_session_exists(self):
-        resp = self.client.get("/")
-        self.assert_(hasattr(resp, "session"))
-        self.assert_("my_session_key" in resp.session)
-        self.assertEqual(resp.session["my_session_key"], "Hello world!")

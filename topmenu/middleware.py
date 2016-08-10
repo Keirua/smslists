@@ -58,6 +58,8 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 			session_status_tracker(request)
 			
 		else:
+			""" *8/9* THIS CODE LEAVES OUT POSSIBILITY OF CANCELLING & RETURNING TO menu_2 ONCE default_url EXISTS"""
+
 			if 'default_url' in request.session['active_urls']:
 				request.session['default_data'] = message_content
 				request.path_info = request.session['active_urls']['default_url']
