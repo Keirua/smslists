@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+""" [commmented out to prevent coverage errors]
 import plivo
 import views
 
@@ -61,3 +62,4 @@ print str(response[1]['api_id'])
 
 # Sample successful output
 # b77af520-8a79-11e4-b153-22000abcaa64
+"""

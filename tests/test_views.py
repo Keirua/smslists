@@ -36,10 +36,17 @@ class DefaultDataHandledCorrectly(unitttest.TestCase):
 
 	def test_post_commit(self):
 		"""
+		
 		"""
 
 		if request.session['default_data'] == '1':
-			self.assertEqual()
+			self.assertEqual(Listing.objects.create(header=request.session['new_post_subject'], 
+				detail=request.session['new_post_description'], category=category),
+				Listing.objects.get(detail=request.session['new_post_description'])
+			self.assertEqual(request.session['active_urls']['default_url'], reverse('topmenu:menu_2'))
+
+		elif request.session['default_data'] == '9':
+			
 
 
 
