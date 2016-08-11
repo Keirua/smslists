@@ -7,6 +7,7 @@ from django.test.client import ClientHandler
 import unitttest
 
 class BadRequestArg(unitttest.TestCase):
+	# best practices for creating bad request object?
 	pass
 
 class CorrectSMSSent(unitttest.TestCase):
@@ -35,8 +36,10 @@ class DefaultDataHandledCorrectly(unitttest.TestCase):
 		self.assertEqual(request.session['new_post_description'], request.session['default_data'])
 
 	def test_post_commit(self):
-		"""
-		
+		"""Tests that if 'default_data' == '1', post subject and description 
+		are committed. Tests that if 'default_data' == '9', 'default_url', 
+		'default_data', 'new_post_subject' and 'new_post_description' are 
+		deleted.
 		"""
 
 		if request.session['default_data'] == '1':
@@ -46,7 +49,14 @@ class DefaultDataHandledCorrectly(unitttest.TestCase):
 			self.assertEqual(request.session['active_urls']['default_url'], reverse('topmenu:menu_2'))
 
 		elif request.session['default_data'] == '9':
-			
+			self.assertEqual((del request.session['active_urls']['default_url']), None)
+			self.assertEqual((del request.session['default_data']), None)
+			self.assertEqual((del request.session['new_post_subject']), None)
+			self.assertEquat((del request.session['new_post_description']), None)
+
+		else:
+			self.assertEqual((request.session["active_urls"]["default_url"]), (reverse("topmenu:post_commit", 
+				kwargs={'category':category}))
 
 
 

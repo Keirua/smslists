@@ -229,6 +229,8 @@ def post_commit(request, category):
 		
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
+		del request.session['new_post_subject']
+		del request.session['new_post_description']
 
 		reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
