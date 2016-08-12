@@ -5,6 +5,7 @@ Unit test for views.py
 from topmenu import views
 from django.test.client import ClientHandler
 import unitttest
+from django.test.TestCase
 
 class BadRequestArg(unitttest.TestCase):
 	# best practices for creating bad request object?
@@ -28,6 +29,9 @@ class MainMenuUnitTests(unitttest.TestCase):
 		required. Tests that 'active_urls' = TOP_MENU_URLS. Tests that for 
 		both new and returning users, HttpResponse(status=200) is returned.
 		"""
+
+		self.client.post(reverse(topmenu:menu_2))
+		response = self.client.post(reverse(topmenu:plivo_endpoint), kwargs=('From':'1234', 'Text'='1'))
 
 		self.assertEqual(phone_num, request.session["phone_num"])
 
