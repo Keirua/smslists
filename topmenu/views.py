@@ -162,10 +162,9 @@ def post_subject_request(request, category):
 	# all user text will be migrated to locale directory
 	post_message_1 = "Listing subject? (max 40 characters) Reply '9' to return to main menu."
 
-	request.session["active_urls"].clear()
-	request.session["active_urls"]["9"] = reverse("topmenu:menu_2") # 8/9 < THIS IS USELESS. IF DEFAULT_URL EXISTS, MESSAGE CONTENT IGNORED
-	request.session["active_urls"]["default_url"] = reverse("topmenu:post_description_request", kwargs={'category':category})
-	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_1)
+	request.session['active_urls'].clear()
+	request.session['active_urls']['default_url'] = reverse('topmenu:post_description_request', kwargs={'category':category})
+	send_message(PLIVO_NUMBER, request.session['phone_num'], post_message_1)
 	return HttpResponse(status=200)
 	
 @csrf_exempt
@@ -175,14 +174,23 @@ def post_description_request(request, category):
 	description. Set "active_urls "default_url" key to value 
 	("topmenu:post_review").
 	"""
-	request.session["new_post_subject"] = request.session["default_data"]
 
 	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 
-	request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
-		kwargs={'category':category})
-	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_2)
-	return HttpResponse(status=200)
+	if request.session['default_data'] == '9':
+		del request.session['active_urls']['default_url']
+		del request.session['default_data']
+		del request.session['new_post_subject']
+		del request.session['new_post_description']
+
+		reverse('topmenu:menu_2')
+		return HttpResponse(status=200)
+	else:
+		request.session["new_post_subject"] = request.session["default_data"]
+		request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
+			kwargs={'category':category})
+		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_2)
+		return HttpResponse(status=200)
 
 @csrf_exempt
 def post_review(request, category):
