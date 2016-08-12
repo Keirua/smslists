@@ -212,10 +212,8 @@ def post_review(request, category):
 		del request.session['new_post_description']
 
 	else:
-
 		request.session['new_post_description'] = request.session['default_data']
-		request.session["active_urls"]["default_url"] = 
-			reverse("topmenu:post_commit", kwargs={'category':category})
+		request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
 		
 		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
 		time.sleep(0.5)
