@@ -24,13 +24,34 @@ class MainMenuUnitTests(unitttest.TestCase):
 	"""Unit tests for the main menu (aka menu_2)"""
 
 	def test_menu_2(self):
-		pass
+		"""NEEDS TO test that menu_2 creates a new user database entry when 
+		required. Tests that 'active_urls' = TOP_MENU_URLS. Tests that for 
+		both new and returning users, HttpResponse(status=200) is returned.
+		"""
+
+		self.assertEqual(phone_num, request.session["phone_num"])
+
+		if create_user is not None:
+			# figure out how to assert that new user is created
+			self.assertEqual(request.session["active_urls"], views.menu_2.TOP_MENU_URLS)
+			self.assertEqual(menu_2(self.request), HttpResponse(status=200))
+
+		else:
+			self.assertEqual(request.session["active_urls"], views.menu_2.TOP_MENU_URLS)
+			self.assertEqual(menu_2(self.request), HttpResponse(status=200))
 
 class ListingsMenusUnitTests(unitttest.TestCase):
 	"""Unit tests for listings menus."""
 
 	def test_listings(self):
-		pass
+		"""
+		"""
+		self.assertIsInstance(displayed_items, views.listings)
+
+		# how to write tests for for-loop?
+
+		self.assertEqual(menu_2(self.request), HttpResponse(status=200))
+
 	def test_listing_detail(self):
 		pass
 

@@ -113,7 +113,9 @@ def listings(request, category):
 
 	displayed_items=[]
 
-	#
+	# must go before listings text and links are generated
+	request.session["active_urls"].clear()
+
 	for counter, listing in enumerate(Listing.objects.order_by('-pub_date')[:4]):
 		request.session["active_urls"][str(counter)] = reverse(
 			'topmenu:listing_detail', kwargs={'id':listing.pk, 'category':category}
@@ -122,14 +124,10 @@ def listings(request, category):
 
 	# TODO: handle the case when there are no items in the listing categor
 
-	request.session["active_urls"].clear()
 	request.session["active_urls"][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 	request.session["active_urls"][6] = reverse('topmenu:menu_2')
 
 	displayed_items = "\n".join(displayed_items)
-
-	# thinking of ways to store the last message sent
-	# request.session["active_urls"][5] ="/listings/" % displayed_items
 
 	# debug code/
 	print "displayed_items = "+displayed_items
