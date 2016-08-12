@@ -21,6 +21,7 @@ class CorrectSMSSent(unitttest.TestCase):
 		pass
 
 class PostCreationUnitTests(unitttest.TestCase):
+	"""Unit tests for the post creation process."""
 	
 	def test_post_subject_request(self):
 		"""Tests that 'active_urls' from previous views are cleared,
@@ -38,6 +39,7 @@ class PostCreationUnitTests(unitttest.TestCase):
 		request.session['default_data'] == request.session['new_post_subject'].
 		Tests that post_description_request returns HttpResponse(status=200)
 		"""
+
 		if request.session['default_data'] == '9':
 			self.assertEqual((del request.session['active_urls']['default_url']), None)
 			self.assertEqual((del request.session['default_data']), None)
@@ -54,12 +56,17 @@ class PostCreationUnitTests(unitttest.TestCase):
 		request.session['default_data'] == request.session['new_post_description']
 		"""
 
-
-		self.assertEqual(request.session['new_post_description'], request.session['default_data'])
-		self.assertEqual(request.session["active_urls"]["default_url"], 
-			reverse("topmenu:post_commit", kwargs={'category':category}))
-		self.assertEqual(post_review(self.request), 
-			HttpResponse(status=200))
+		if request.session['default_data'] == '9':
+			self.assertEqual((del request.session['active_urls']['default_url']), None)
+			self.assertEqual((del request.session['default_data']), None)
+			self.assertEqual((del request.session['new_post_subject']), None)
+			self.assertEqual((del request.session['new_post_description']), None)
+		else:	
+			self.assertEqual(request.session['new_post_description'], request.session['default_data'])
+			self.assertEqual(request.session["active_urls"]["default_url"], 
+				reverse("topmenu:post_commit", kwargs={'category':category}))
+			self.assertEqual(post_review(self.request), 
+				HttpResponse(status=200))
 
 
 	def test_post_commit(self):

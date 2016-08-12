@@ -199,22 +199,32 @@ def post_review(request, category):
 	description for review. Set "active_urls "default_url" key to value 
 	("topmenu:post_commit").
 	"""
-	request.session['new_post_description'] = request.session['default_data'] # changed from request.POST
 
 	post_message_3 = "Please review your listing."
 	post_message_4 = "Subject: %s" % request.session["new_post_subject"]
 	post_message_5 = "Description: %s" % request.session["new_post_description"]
 	post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
 
-	request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
-	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
-	time.sleep(0.5)
-	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
-	time.sleep(0.5)
-	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_5)
-	time.sleep(0.5)
-	send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_6)
-	return HttpResponse(status=200)
+	if request.session['default_data'] == '9':
+		del request.session['active_urls']['default_url']
+		del request.session['default_data']
+		del request.session['new_post_subject']
+		del request.session['new_post_description']
+
+	else:
+
+		request.session['new_post_description'] = request.session['default_data']
+		request.session["active_urls"]["default_url"] = 
+			reverse("topmenu:post_commit", kwargs={'category':category})
+		
+		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
+		time.sleep(0.5)
+		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
+		time.sleep(0.5)
+		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_5)
+		time.sleep(0.5)
+		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_6)
+		return HttpResponse(status=200)
 
 @csrf_exempt
 def post_commit(request, category):
@@ -226,7 +236,8 @@ def post_commit(request, category):
 
 	print "request.session['default_data'] ="+str(request.session['default_data'])
 	if request.session['default_data'] == '1': # changed from request.POST
-		Listing.objects.create(header=request.session['new_post_subject'], detail=request.session['new_post_description'], category=category)
+		Listing.objects.create(header=request.session['new_post_subject'], 
+			detail=request.session['new_post_description'], category=category)
 		send_message(PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
 		request.session['active_urls']['default_url'] = reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
