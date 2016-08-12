@@ -4,14 +4,22 @@ Unit test for views.py
 
 from topmenu import views
 from django.test.client import ClientHandler
-import unitttest
-from django.test.TestCase
+from django.test import TestCase
 
-class BadRequestArg(unitttest.TestCase):
+class BaseTest(TestCase):
+	def __init__(self):
+		self.url = reverse('topmenu:plivo_endpoint')
+
+	def setUp(self):
+		self.url = reverse('topmenu:plivo_endpoint')
+
+
+
+class BadRequestArg(TestCase):
 	# best practices for creating bad request object?
 	pass
 
-class CorrectSMSSent(unitttest.TestCase):
+class CorrectSMSSent(TestCase):
 	def test_post_subject_request(self):
 		pass
 	def test_post_description_request(self):
@@ -21,7 +29,9 @@ class CorrectSMSSent(unitttest.TestCase):
 	def test_post_commit(self):
 		pass
 
-class MainMenuUnitTests(unitttest.TestCase):
+
+
+class MainMenuUnitTests(BaseTest):
 	"""Unit tests for the main menu (aka menu_2)"""
 
 	def test_menu_2(self):
@@ -29,106 +39,26 @@ class MainMenuUnitTests(unitttest.TestCase):
 		required. Tests that 'active_urls' = TOP_MENU_URLS. Tests that for 
 		both new and returning users, HttpResponse(status=200) is returned.
 		"""
+		# simulate incoming request
+		c = ClientHandler()
 
-		self.client.post(reverse(topmenu:menu_2))
-		response = self.client.post(reverse(topmenu:plivo_endpoint), kwargs=('From':'1234', 'Text'='1'))
+		self.c.post(reverse('topmenu:menu_2'))
 
-		self.assertEqual(phone_num, request.session["phone_num"])
+		# why again is this needed?
+		response = self.c.post(reverse('topmenu:plivo_endpoint'), kwargs={'From':'12345678901', 'Text':'1'})
+
 
 		if create_user is not None:
-			# figure out how to assert that new user is created
-			self.assertEqual(request.session["active_urls"], views.menu_2.TOP_MENU_URLS)
-			self.assertEqual(menu_2(self.request), HttpResponse(status=200))
+			# Precondition check verifies no users currently in test db.
+			self.assertEqual(User.object.count(), 0)
+
+			# Verify that db entry for new user was created
+			self.assertEqual(User.object.count(), 1)
+
+			# self.assertEqual(self.client.session['active_urls'], views.menu_2.TOP_MENU_URLS)
+			self.assertEqual(response.status_code, 200)
 
 		else:
-			self.assertEqual(request.session["active_urls"], views.menu_2.TOP_MENU_URLS)
-			self.assertEqual(menu_2(self.request), HttpResponse(status=200))
+			# self.assertEqual(self.client.session["active_urls"], views.menu_2.TOP_MENU_URLS)
+			self.assertEqual(response.status_code, 200)
 
-class ListingsMenusUnitTests(unitttest.TestCase):
-	"""Unit tests for listings menus."""
-
-	def test_listings(self):
-		"""
-		"""
-		self.assertIsInstance(displayed_items, views.listings)
-
-		# how to write tests for for-loop?
-
-		self.assertEqual(menu_2(self.request), HttpResponse(status=200))
-
-	def test_listing_detail(self):
-		pass
-
-class PostCreationUnitTests(unitttest.TestCase):
-	"""Unit tests for the post creation process."""
-
-	def test_post_subject_request(self):
-		"""Tests that 'active_urls' from previous views are cleared,
-		tests that 'default_url' is mapped to 'topmenu:post_description_request',
-		tests that view returns HttpResponse(status=200).
-		"""
-
-		self.assertEqual((request.session['active_urls'].clear()), None)
-		self.assertEqual((request.session['active_urls']['default_url']), 
-			(reverse('topmenu:post_description_request', kwargs={'category':category})))
-		self.assertEqual(post_subject_request(self.request), 
-			HttpResponse(status=200))
-
-	def test_post_description_request(self):
-		"""Tests that following post_subject_request, 
-		request.session['default_data'] == request.session['new_post_subject'].
-		Tests that post_description_request returns HttpResponse(status=200)
-		"""
-
-		if request.session['default_data'] == '9':
-			self.assertNotIn(('default_url'), (request.session['active_urls']))
-			self.assertNotIn(('default_data'), (request.session))
-			self.assertNotIn(('new_post_subject'), (request.session))
-			self.assertNotIn(('new_post_description'), (request.session))
-
-		else: 
-			self.assertEqual(request.session['new_post_subject'], request.session['default_data'])
-			self.assertEqual(post_description_request(self.request), 
-				HttpResponse(status=200))
-
-	def test_post_review(self):
-		"""Tests that following post_description_request, 
-		request.session['default_data'] == request.session['new_post_description']
-		"""
-
-		if request.session['default_data'] == '9':
-			self.assertNotIn(('default_url'), (request.session['active_urls']))
-			self.assertNotIn(('default_data'), (request.session))
-			self.assertNotIn(('new_post_subject'), (request.session))
-			self.assertNotIn(('new_post_description'), (request.session))
-		else:	
-			self.assertEqual(request.session['new_post_description'], request.session['default_data'])
-			self.assertEqual(request.session["active_urls"]["default_url"], 
-				reverse("topmenu:post_commit", kwargs={'category':category}))
-			self.assertEqual(post_review(self.request), 
-				HttpResponse(status=200))
-
-
-	def test_post_commit(self):
-		"""Tests that if 'default_data' == '1', post subject and description 
-		are committed. Tests that if 'default_data' == '9', 'default_url', 
-		'default_data', 'new_post_subject' and 'new_post_description' are 
-		deleted.
-		"""
-
-		if request.session['default_data'] == '1':
-			self.assertEqual(Listing.objects.create(header=request.session['new_post_subject'], detail=request.session['new_post_description'], category=category), Listing.objects.get(detail=request.session['new_post_description'])
-			self.assertEqual((request.session['active_urls']['default_url']), reverse('topmenu:menu_2'))
-			self.assertEqual(post_commit(self.request), HttpResponse(status=200))
-
-		elif request.session['default_data'] == '9':
-			self.assertNotIn(('default_url'), (request.session['active_urls']))
-			self.assertNotIn(('default_data'), (request.session))
-			self.assertNotIn(('new_post_subject'), (request.session))
-			self.assertNotIn(('new_post_description'), (request.session))
-			self.assertEqual(post_commit(self.request), HttpResponse(status=200))
-
-		else:
-			self.assertEqual((request.session["active_urls"]["default_url"]), (reverse("topmenu:post_commit", 
-				kwargs={'category':category}))
-			self.assertEqual(post_commit(self.request), HttpResponse(status=200))
