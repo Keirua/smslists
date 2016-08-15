@@ -2,24 +2,29 @@
 Unit test for views.py
 """
 
+
 from topmenu import views
 from django.test.client import ClientHandler
 from django.test import TestCase
+from django.core.urlresolvers import reverse
 
+
+"""
+from topmenu import views
+from django.test.client import ClientHandler
+from django.test.testcases import SimpleTestCase
+"""
 class BaseTest(TestCase):
-	def __init__(self):
-		self.url = reverse('topmenu:plivo_endpoint')
-
 	def setUp(self):
 		self.url = reverse('topmenu:plivo_endpoint')
 
 
 
-class BadRequestArg(TestCase):
+class BadRequestArg(BaseTest):
 	# best practices for creating bad request object?
 	pass
 
-class CorrectSMSSent(TestCase):
+class CorrectSMSSent(BaseTest):
 	def test_post_subject_request(self):
 		pass
 	def test_post_description_request(self):

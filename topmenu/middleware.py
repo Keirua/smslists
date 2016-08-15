@@ -52,11 +52,19 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		messageuuid = request.POST['MessageUUID']
 
 		if 'active_urls' not in request.session:
-			request.path_info = '/topmenu/menu_2/create_user/'
-			request.session['active_urls'] = {}
-			print 'Active_urls not in request.session. End of process_request().'
-			session_status_tracker(request)
+
+			if User.object.get(phone_num=session_key).count() = 0:
+
+				request.path_info = '/topmenu/menu_2/create_user/'
+				request.session['active_urls'] = {}
+				print 'Active_urls not in request.session. End of process_request().'
+				session_status_tracker(request)
 			
+			else:
+
+				
+
+
 		else:
 			""" *8/9* THIS CODE LEAVES OUT POSSIBILITY OF CANCELLING & RETURNING TO menu_2 ONCE default_url EXISTS"""
 
