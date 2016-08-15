@@ -45,19 +45,20 @@ class MainMenuUnitTests(BaseTest):
 		required. Tests that 'active_urls' = TOP_MENU_URLS. Tests that for 
 		both new and returning users, HttpResponse(status=200) is returned.
 		"""
-		# simulate incoming request
 
+		# Precondition check verifies no users currently in test db.
+		self.assertEqual(User.objects.count(), 0)
+
+		# simulate incoming request
 		self.c.post(reverse('topmenu:menu_2'))
 		self.c.session['phone_num'] = '12345678901'
 
 		# why again is this needed?
-		response = self.c.post(reverse('topmenu:menu_2'), kwargs={'From':'12345678901', 'text':'1'})
+		response = self.c.post(reverse('topmenu:menu_2'), kwargs={'from':'12345678901', 'text':'1'})
 
 
 		if create_user is not None:
-			# Precondition check verifies no users currently in test db.
-			self.assertEqual(User.objects.count(), 0)
-
+			
 			# Verify that db entry for new user was created
 			self.assertEqual(User.objects.count(), 1)
 
