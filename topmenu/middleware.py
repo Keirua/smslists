@@ -2,6 +2,7 @@ from django.contrib.sessions import middleware
 from django.contrib.sessions.models import Session
 from django.conf import settings
 from django.core.urlresolvers import reverse
+from .models import User
 import plivo
 
 # need to discuss
@@ -41,30 +42,29 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		print 'beginning of process_request()'
 		session_status_tracker(request)
 
-		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
+		session_key = request.POST.get('from', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
 		request.session = self.SessionStore(session_key=session_key) # does SessionStore erase existing session w/ same session key?
 		request.session["phone_num"] = session_key
 
 		request.session.set_expiry(300)
 
-		message_content = request.POST['Text']
-		messageuuid = request.POST['MessageUUID']
+		message_content = request.POST.get('text')
+		messageuuid = request.POST.get('MessageUUID')
 
 		if 'active_urls' not in request.session:
 
-			if User.object.get(phone_num=session_key).count() = 0:
-
+			if User.objects.filter(phone_num=session_key).count() == 0:
+				# first time user:
 				request.path_info = '/topmenu/menu_2/create_user/'
 				request.session['active_urls'] = {}
 				print 'Active_urls not in request.session. End of process_request().'
 				session_status_tracker(request)
 			
 			else:
-
-				
-
-
+				# user already exists in db but has an incomplete / inactive session object:
+				request.path_info = '/topmenu/menu_2/'
+				request.session['active_urls'] = {}
 		else:
 			""" *8/9* THIS CODE LEAVES OUT POSSIBILITY OF CANCELLING & RETURNING TO menu_2 ONCE default_url EXISTS"""
 

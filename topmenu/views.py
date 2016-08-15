@@ -65,13 +65,17 @@ def menu_2(request, create_user=None):
 		"00": reverse('topmenu:session_flush')
 	}
 
-	phone_num = request.session["phone_num"]
 	
 	if create_user is not None:
 		print "menu_2/create_user"
+		if request.session['phone_num'] == None:
+			request.session['phone_num'] = '12345678901'
+			User.objects.create(phone_num='12345678901', user_loc="Los Angeles")
+		else:
+			User.objects.create(phone_num=phone_num, user_loc="Los Angeles")
 		
-		User.objects.create(phone_num=phone_num, user_loc="Los Angeles")
-		
+		phone_num = request.session["phone_num"]
+
 		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 		
 		request.session["active_urls"].clear()

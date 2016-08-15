@@ -4,7 +4,7 @@ Unit test for views.py
 
 
 from topmenu import views
-from django.test.client import ClientHandler
+from django.test import Client
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 
@@ -16,7 +16,8 @@ from django.test.testcases import SimpleTestCase
 """
 class BaseTest(TestCase):
 	def setUp(self):
-		self.url = reverse('topmenu:plivo_endpoint')
+		self.url = reverse('topmenu:menu_2')
+		self.c = Client()
 
 
 
@@ -45,20 +46,20 @@ class MainMenuUnitTests(BaseTest):
 		both new and returning users, HttpResponse(status=200) is returned.
 		"""
 		# simulate incoming request
-		c = ClientHandler()
 
 		self.c.post(reverse('topmenu:menu_2'))
+		self.c.session['phone_num'] = '12345678901'
 
 		# why again is this needed?
-		response = self.c.post(reverse('topmenu:plivo_endpoint'), kwargs={'From':'12345678901', 'Text':'1'})
+		response = self.c.post(reverse('topmenu:menu_2'), kwargs={'From':'12345678901', 'text':'1'})
 
 
 		if create_user is not None:
 			# Precondition check verifies no users currently in test db.
-			self.assertEqual(User.object.count(), 0)
+			self.assertEqual(User.objects.count(), 0)
 
 			# Verify that db entry for new user was created
-			self.assertEqual(User.object.count(), 1)
+			self.assertEqual(User.objects.count(), 1)
 
 			# self.assertEqual(self.client.session['active_urls'], views.menu_2.TOP_MENU_URLS)
 			self.assertEqual(response.status_code, 200)
