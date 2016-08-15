@@ -53,7 +53,7 @@ def session_flush(request):
 	return HttpResponse(status=200)
 
 @csrf_exempt
-def menu_2(request, create_user=None): 
+def menu_2(request, create_user=False): 
 
 	# This could be a constant at the top of the file, but then it will cause a circular import problem
 	TOP_MENU_URLS = {
@@ -62,25 +62,25 @@ def menu_2(request, create_user=None):
 		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
 		"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
 		# special development session flush
-		"00": reverse('topmenu:session_flush')
+		"00": reverse('topmenu:session_flush'),
 	}
 
 	
-	if create_user is not None:
+	if create_user is not False:
 		print "menu_2/create_user"
 		if request.session['phone_num'] == None:
 			request.session['phone_num'] = '12345678901'
-			User.objects.create(phone_num='12345678901', user_loc="Los Angeles")
+			User.objects.create(phone_num='12345678901', user_loc='Los Angeles')
 		else:
-			User.objects.create(phone_num=phone_num, user_loc="Los Angeles")
+			User.objects.create(phone_num=phone_num, user_loc='Los Angeles')
 		
-		phone_num = request.session["phone_num"]
+		phone_num = request.session['phone_num']
 
 		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 		
-		request.session["active_urls"].clear()
-		request.session["active_urls"] = TOP_MENU_URLS
-		
+		request.session['active_urls'].clear()
+		request.session['active_urls'] = TOP_MENU_URLS
+
 		menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
 		current_language.wanted, current_language.jobs, 
 		current_language.announcements)

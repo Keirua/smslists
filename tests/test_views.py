@@ -7,6 +7,7 @@ from topmenu import views
 from django.test import Client
 from django.test import TestCase
 from django.core.urlresolvers import reverse
+from topmenu.models import User
 
 
 """

@@ -18,7 +18,7 @@ def _load_and_keep_session_key(orig):
 
 def session_status_tracker(request):
 	if hasattr(request, 'session'):
-		if 'phone_num' in request.session.keys():
+		if 'phone_num' in request.session:
 			print "request.session['phone_num'] = %s" % request.session['phone_num']
 			print "request.path_info = %s" % request.path_info
 			print "request.session['active_urls'] = "
@@ -58,7 +58,6 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 				# first time user:
 				request.path_info = '/topmenu/menu_2/create_user/'
 				request.session['active_urls'] = {}
-				print 'Active_urls not in request.session. End of process_request().'
 				session_status_tracker(request)
 			
 			else:
@@ -66,7 +65,6 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 				request.path_info = '/topmenu/menu_2/'
 				request.session['active_urls'] = {}
 		else:
-			""" *8/9* THIS CODE LEAVES OUT POSSIBILITY OF CANCELLING & RETURNING TO menu_2 ONCE default_url EXISTS"""
 
 			if 'default_url' in request.session['active_urls']:
 				request.session['default_data'] = message_content
@@ -74,6 +72,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 				print 'Default_url in request.session. End of process_request().'
 				session_status_tracker(request)
 			else:
-				request.path_info = request.session['active_urls'][message_content]
+				request.session['active_urls']['message_content'] = message_content
+				request.path_info = request.session['active_urls']['message_content']
 				print "request.path_info = request.session['active_urls'][message_content]. End of process_request()."
 				session_status_tracker(request)
