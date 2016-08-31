@@ -70,9 +70,9 @@ def menu_2(request, create_user=False):
 		print "menu_2/create_user"
 		if request.session['phone_num'] == None:
 			request.session['phone_num'] = '12345678901'
-			User.objects.create(phone_num='12345678901', user_loc='Los Angeles')
+			User.objects.get_or_create(phone_num='12345678901', user_loc='Los Angeles')
 		else:
-			User.objects.create(phone_num=phone_num, user_loc='Los Angeles')
+			User.objects.get_or_create(phone_num=phone_num, user_loc='Los Angeles')
 		
 		phone_num = request.session['phone_num']
 

@@ -48,7 +48,7 @@ class MainMenuUnitTests(BaseTest):
 		"""
 
 		# Precondition check verifies no users currently in test db.
-		self.assertEqual(User.objects.count(), 0)
+		self.assertEqual(User.objects.count(), 1)
 
 		# simulate incoming request
 		self.c.post(reverse('topmenu:menu_2'))
