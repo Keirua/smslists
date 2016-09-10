@@ -40,31 +40,48 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 	def process_request(self, request):
 		print 'beginning of process_request()'
-		session_status_tracker(request)
 
-		session_key = request.POST.get('from', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
+		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
 		request.session = self.SessionStore(session_key=session_key) # does SessionStore erase existing session w/ same session key?
 		request.session["phone_num"] = session_key
 
 		request.session.set_expiry(300)
 
-		message_content = request.POST.get('text')
+		message_content = request.POST.get('Text')
 		messageuuid = request.POST.get('MessageUUID')
 
-		if 'active_urls' not in request.session:
-
-				request.path_info = '/topmenu/menu_2/'
+		if 'active_urls' in request.session:
+			if message_content in request.session['active_urls']:
+				request.path_info = request.session['active_urls'][message_content]
 				request.session['active_urls'] = {}
-		else:
 
-			if 'default_url' in request.session['active_urls']:
-				request.session['default_data'] = message_content
-				request.path_info = request.session['active_urls']['default_url']
-				print 'Default_url in request.session. End of process_request().'
+				print "first option."
 				session_status_tracker(request)
+
 			else:
-				request.session['active_urls']['message_content'] = message_content
-				request.path_info = request.session['active_urls']['message_content']
-				print "request.path_info = request.session['active_urls'][message_content]. End of process_request()."
-				session_status_tracker(request)
+
+				if 'default_url' in request.session['active_urls']:
+					request.session['default_data'] = message_content
+					request.path_info = request.session['active_urls']['default_url']
+					print 'Default_url in request.session. End of process_request().'
+					session_status_tracker(request)
+
+				else:
+					if len(request.session['active_urls']) == 0:
+						request.path_info = 'topmenu/menu_2'
+
+						print "3rd option."
+						session_status_tracker(request)
+
+					else:
+						print "Invalid response."
+
+						session_status_tracker(request)
+
+		else:
+			request.path_info = 'topmenu/menu_2'
+			request.session['active_urls'] = {}
+
+			session_status_tracker(request)
+

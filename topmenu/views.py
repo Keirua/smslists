@@ -70,7 +70,6 @@ def menu_2(request):
 		print "menu_2/create_user"
 		
 		User.objects.create(phone_num=phone_num, user_loc='Los Angeles')
-	 	request.session['active_urls'] = {}
 
 		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 		
