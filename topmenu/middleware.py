@@ -54,14 +54,6 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 		if 'active_urls' not in request.session:
 
-			if User.objects.filter(phone_num=session_key).count() == 0:
-				# first time user:
-				request.path_info = '/topmenu/menu_2/create_user/'
-				request.session['active_urls'] = {}
-				session_status_tracker(request)
-			
-			else:
-				# user already exists in db but has an incomplete / inactive session object:
 				request.path_info = '/topmenu/menu_2/'
 				request.session['active_urls'] = {}
 		else:

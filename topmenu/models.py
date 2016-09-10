@@ -14,6 +14,10 @@ class User(DjangoUser):
 	user_sms_quant = models.PositiveIntegerField(max_length=4, default=1)
 	user_language = models.CharField(max_length=20, default='English')
 
+	def save(self, *args, **kwargs):
+		self.username = str(self.phone_num)
+		super(User, self).save(*args, **kwargs)
+
 class Listing(models.Model):
 	header = models.CharField(max_length=40)
 	#adding detail as an attribute of the same object instance:

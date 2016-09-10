@@ -6,7 +6,6 @@ app_name = "topmenu"
 urlpatterns = [
 	url(r'^$', views.index, name='index'),
 	url(r'^menu_2/$', views.menu_2, name='menu_2'),
-	url(r'^menu_2/(?P<create_user>\w+)/', views.menu_2, name='menu_2/create_user'),
 	url(r'^listings/(?P<category>\w+)/', views.listings, name='listings'),
 	url(r'^session_flush/$', views.session_flush, name='session_flush'),
 
