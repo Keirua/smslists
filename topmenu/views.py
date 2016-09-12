@@ -186,6 +186,9 @@ def post_description_request(request, category):
 		request.session["new_post_subject"] = request.session["default_data"]
 		request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
 			kwargs={'category':category})
+
+		print 'post_description default_url = '+request.session["active_urls"]["default_url"]
+
 		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_2)
 		return HttpResponse(status=200)
 
@@ -197,21 +200,20 @@ def post_review(request, category):
 	("topmenu:post_commit").
 	"""
 
-	post_message_3 = "Please review your listing."
-	post_message_4 = "Subject: %s" % request.session["new_post_subject"]
-	post_message_5 = "Description: %s" % request.session["new_post_description"]
-	post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
-
 	if request.session['default_data'] == '9':
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
 		del request.session['new_post_subject']
-		del request.session['new_post_description']
 
 	else:
 		request.session['new_post_description'] = request.session['default_data']
 		request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
 		
+		post_message_3 = "Please review your listing."
+		post_message_4 = "Subject: %s" % request.session["new_post_subject"]
+		post_message_5 = "Description: %s" % request.session["new_post_description"]
+		post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
+
 		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
 		time.sleep(0.5)
 		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
@@ -232,7 +234,8 @@ def post_commit(request, category):
 	print "request.session['default_data'] ="+str(request.session['default_data'])
 	if request.session['default_data'] == '1': # changed from request.POST
 		Listing.objects.create(header=request.session['new_post_subject'], 
-			detail=request.session['new_post_description'], category=category)
+			detail=request.session['new_post_description'], category=category,
+			owner=User.objects.get(phone_num=request.session['phone_num']))
 		send_message(PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
 		request.session['active_urls']['default_url'] = reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
