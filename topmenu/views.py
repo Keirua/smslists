@@ -116,10 +116,12 @@ def listings(request, category):
 	request.session["active_urls"].clear()
 
 	for counter, listing in enumerate(Listing.objects.order_by('-pub_date')[:4]):
+
+		# 9/14/16 REVERSE NOT WORKING
 		request.session["active_urls"][str(counter+1)] = reverse('topmenu:listing_detail', kwargs={'category':category, 'id':listing.pk})
 		displayed_items.append("%s. %s" % (counter+1, listing.header))
 
-	print request.session['active_urls']
+
 	# TODO: handle the case when there are no items in the listing categor
 
 	request.session["active_urls"][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
@@ -129,6 +131,7 @@ def listings(request, category):
 
 	# debug code/
 	print "displayed_items = "+displayed_items
+	print 'ACTIVE URLS = '+str(request.session['active_urls'])
 	# /debug code
 
 	send_message(PLIVO_NUMBER, request.session["phone_num"], displayed_items)

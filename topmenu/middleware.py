@@ -52,7 +52,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		messageuuid = request.POST.get('MessageUUID')
 
 		if 'active_urls' in request.session:
-			if message_content in request.session['active_urls']:
+			if str(message_content) in request.session['active_urls']:
 				request.path_info = request.session['active_urls'][message_content]
 				request.session['active_urls'] = {}
 
