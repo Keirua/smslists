@@ -109,6 +109,7 @@ def listings(request, category):
 	pk; map links to user-viewable commands and send; update session.
 	"""
 	print "listings()"
+	print "category = %s" % category
 
 	displayed_items=[]
 
@@ -118,7 +119,7 @@ def listings(request, category):
 	for counter, listing in enumerate(Listing.objects.order_by('-pub_date')[:4]):
 
 		# 9/14/16 REVERSE NOT WORKING
-		request.session["active_urls"][str(counter+1)] = reverse('topmenu:listing_detail', kwargs={'category':category, 'id':listing.pk})
+		request.session["active_urls"][counter+1] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 		displayed_items.append("%s. %s" % (counter+1, listing.header))
 
 
@@ -130,6 +131,7 @@ def listings(request, category):
 	displayed_items = "\n".join(displayed_items)
 
 	# debug code/
+	print "listing_id = %s" % listing.pk
 	print "displayed_items = "+displayed_items
 	print 'ACTIVE URLS = '+str(request.session['active_urls'])
 	# /debug code
@@ -146,10 +148,13 @@ def listing_detail(request, category, listing_id):
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
-	request.session['active_urls'].clear()
-	request.session['active_urls'][6] = reverse('topmenu:listings')
 
-	send_message(PLIVO_NUMBER, request.session['phone_num'], Listing.objects.detail(listing_id))
+	request.session['active_urls'].clear()
+	request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
+
+	listing = Listing.objects.get(pk=listing_id)
+
+	send_message(PLIVO_NUMBER, request.session['phone_num'], listing.detail)
 	return HttpResponse(status=200)
 
 @csrf_exempt

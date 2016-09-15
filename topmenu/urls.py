@@ -10,7 +10,7 @@ urlpatterns = [
 	url(r'^session_flush/$', views.session_flush, name='session_flush'),
 
 	# NOTE: category doesn't matter/superflous here, since listings have unique id's across categories anyway
-	url(r'^listings/(?P<category>\w+)/(?P<id>\d+)/', views.listing_detail, name='listing_detail'),
+	url(r'^listing/(?P<category>\w+)/(?P<listing_id>\d+)/', views.listing_detail, name='listing_detail'),
 	url(r'^post_subject_request/(?P<category>\w+)/', views.post_subject_request, name='post_subject_request'),
 	url(r'^post_description_request/(?P<category>\w+)/', views.post_description_request, name='post_description_request'),
 	url(r'^post_review/(?P<category>\w+)/', views.post_review, name='post_review'),
