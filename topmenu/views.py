@@ -30,7 +30,7 @@ def detail(request, detail_id):
 	return render(request, 'topmenu/detail.html', {'apples': detail_display})
 ###############
 
-def send_message(source, destination, menu_text):
+def send_message(request, source, destination, menu_text):
 	p = plivo.RestAPI(auth_id, auth_token)
 	params = {
     'src': source,  # Sender's phone number with country code
@@ -40,6 +40,7 @@ def send_message(source, destination, menu_text):
     'method' : 'POST' # The method used to call the url
 	}
 	response = p.send_message(params)
+	request.session['last_message'] = menu_text
 	return response
 
 @csrf_exempt
@@ -80,7 +81,7 @@ def menu_2(request):
 		current_language.wanted, current_language.jobs, 
 		current_language.announcements)
 		
-		send_message(source=PLIVO_NUMBER, destination=phone_num,
+		send_message(request, source=PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
 		return HttpResponse(status=200)
 
@@ -95,7 +96,7 @@ def menu_2(request):
 		current_language.wanted, current_language.jobs,
 		current_language.announcements)
 
-		send_message(source=PLIVO_NUMBER, destination=phone_num,
+		send_message(request, source=PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
 		return HttpResponse(status=200)
 
@@ -116,9 +117,8 @@ def listings(request, category):
 	# must go before listings text and links are generated
 	request.session["active_urls"].clear()
 
-	for counter, listing in enumerate(Listing.objects.order_by('-pub_date')[:4]):
+	for counter, listing in enumerate(Listing.objects.filter(category=category).order_by('-pub_date')[:4]):
 
-		# 9/14/16 REVERSE NOT WORKING
 		request.session["active_urls"][counter+1] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 		displayed_items.append("%s. %s" % (counter+1, listing.header))
 
@@ -130,13 +130,17 @@ def listings(request, category):
 
 	displayed_items = "\n".join(displayed_items)
 
+
+	if len(displayed_items) == 0:
+		displayed_items = 'No active listings in %s.' % category
+	else:
+		pass
 	# debug code/
-	print "listing_id = %s" % listing.pk
 	print "displayed_items = "+displayed_items
 	print 'ACTIVE URLS = '+str(request.session['active_urls'])
 	# /debug code
 
-	send_message(PLIVO_NUMBER, request.session["phone_num"], displayed_items)
+	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
 
@@ -154,7 +158,7 @@ def listing_detail(request, category, listing_id):
 
 	listing = Listing.objects.get(pk=listing_id)
 
-	send_message(PLIVO_NUMBER, request.session['phone_num'], listing.detail)
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], listing.detail)
 	return HttpResponse(status=200)
 
 @csrf_exempt
@@ -169,7 +173,7 @@ def post_subject_request(request, category):
 
 	request.session['active_urls'].clear()
 	request.session['active_urls']['default_url'] = reverse('topmenu:post_description_request', kwargs={'category':category})
-	send_message(PLIVO_NUMBER, request.session['phone_num'], post_message_1)
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], post_message_1)
 	return HttpResponse(status=200)
 	
 @csrf_exempt
@@ -197,7 +201,7 @@ def post_description_request(request, category):
 
 		print 'post_description default_url = '+request.session["active_urls"]["default_url"]
 
-		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_2)
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_2)
 		return HttpResponse(status=200)
 
 @csrf_exempt
@@ -222,13 +226,13 @@ def post_review(request, category):
 		post_message_5 = "Description: %s" % request.session["new_post_description"]
 		post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
 
-		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_3)
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_3)
 		time.sleep(0.5)
-		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_4)
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_4)
 		time.sleep(0.5)
-		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_5)
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_5)
 		time.sleep(0.5)
-		send_message(PLIVO_NUMBER, request.session["phone_num"], post_message_6)
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_6)
 		return HttpResponse(status=200)
 
 @csrf_exempt
@@ -240,17 +244,17 @@ def post_commit(request, category):
 	invalid_input = "Input not recognized. Reply '1' to confirm posting or '9' to cancel."
 
 	print "request.session['default_data'] ="+str(request.session['default_data'])
-	if request.session['default_data'] == '1': # changed from request.POST
+	if request.session['default_data'] == '1': 
 		Listing.objects.create(header=request.session['new_post_subject'], 
 			detail=request.session['new_post_description'], category=category,
 			owner=User.objects.get(phone_num=request.session['phone_num']))
-		send_message(PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
+		send_message(request, PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
 		request.session['active_urls']['default_url'] = reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
 	elif request.session['default_data'] == '9': # changed from request.POST
-		send_message(PLIVO_NUMBER, request.session['phone_num'], cancellation_message)
+		send_message(request, PLIVO_NUMBER, request.session['phone_num'], cancellation_message)
 		
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
@@ -261,13 +265,18 @@ def post_commit(request, category):
 		return HttpResponse(status=200)
 	
 	else:
-		send_message(PLIVO_NUMBER, request.session["phone_num"], invalid_input)
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], invalid_input)
 		request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", 
 			kwargs={'category':category})
 		return HttpResponse(status=200)
 
-
-
-
+@csrf_exempt
+def invalid_response(request):
+	"""If user submits a response not in active_urls, system resends last
+	message and a second message with active commands.
+	"""
+	print "/topmenu/invalid_response/"
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
+	return HttpResponse(status=200)
 
 

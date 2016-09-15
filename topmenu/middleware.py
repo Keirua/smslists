@@ -52,7 +52,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 		messageuuid = request.POST.get('MessageUUID')
 
 		if 'active_urls' in request.session:
-			if str(message_content) in request.session['active_urls']:
+			if message_content in request.session['active_urls']:
 				request.path_info = request.session['active_urls'][message_content]
 				request.session['active_urls'] = {}
 
@@ -75,8 +75,8 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 						session_status_tracker(request)
 
 					else:
+						request.path_info = '/topmenu/invalid_response/'
 						print "Invalid response."
-
 						session_status_tracker(request)
 
 		else:
