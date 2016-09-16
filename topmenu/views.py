@@ -63,8 +63,9 @@ def menu_2(request):
 		"2": reverse('topmenu:listings', kwargs={"category": "wanted"}),
 		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
 		"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
+		"0": reverse('topmenu:options'),
 		# special development session flush
-		"00": reverse('topmenu:session_flush'),
+		"000": reverse('topmenu:session_flush'),
 	}
 
 	if  User.objects.filter(phone_num=phone_num).count() == 0:
@@ -114,7 +115,6 @@ def listings(request, category):
 
 	displayed_items=[]
 
-	# must go before listings text and links are generated
 	request.session["active_urls"].clear()
 
 	for counter, listing in enumerate(Listing.objects.filter(category=category).order_by('-pub_date')[:4]):
@@ -128,11 +128,12 @@ def listings(request, category):
 	request.session["active_urls"][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 	request.session["active_urls"][6] = reverse('topmenu:menu_2')
 
+	displayed_items.append('5. Post 6. Back')
 	displayed_items = "\n".join(displayed_items)
 
 
 	if len(displayed_items) == 0:
-		displayed_items = 'No active listings in %s.' % category
+		displayed_items = 'No active listings in %s. 5. Post 6. Back' % category
 	else:
 		pass
 	# debug code/
@@ -158,7 +159,7 @@ def listing_detail(request, category, listing_id):
 
 	listing = Listing.objects.get(pk=listing_id)
 
-	send_message(request, PLIVO_NUMBER, request.session['phone_num'], listing.detail)
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], listing.detail+' 6. Back')
 	return HttpResponse(status=200)
 
 @csrf_exempt
@@ -185,21 +186,23 @@ def post_description_request(request, category):
 	"""
 
 	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
+	cancellation_message = "Listing cancelled. Returning to main menu."
+
 
 	if request.session['default_data'] == '9':
+
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
-		del request.session['new_post_subject']
-		del request.session['new_post_description']
 
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], cancellation_message)
 		reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
+
 	else:
+
 		request.session["new_post_subject"] = request.session["default_data"]
 		request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
 			kwargs={'category':category})
-
-		print 'post_description default_url = '+request.session["active_urls"]["default_url"]
 
 		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_2)
 		return HttpResponse(status=200)
@@ -211,11 +214,16 @@ def post_review(request, category):
 	description for review. Set "active_urls "default_url" key to value 
 	("topmenu:post_commit").
 	"""
+	cancellation_message = "Listing cancelled. Returning to main menu."
 
 	if request.session['default_data'] == '9':
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
 		del request.session['new_post_subject']
+
+		send_message(request, PLIVO_NUMBER, request.session["phone_num"], cancellation_message)
+		reverse('topmenu:menu_2')
+		return HttpResponse(status=200)
 
 	else:
 		request.session['new_post_description'] = request.session['default_data']
@@ -249,7 +257,7 @@ def post_commit(request, category):
 			detail=request.session['new_post_description'], category=category,
 			owner=User.objects.get(phone_num=request.session['phone_num']))
 		send_message(request, PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
-		request.session['active_urls']['default_url'] = reverse('topmenu:menu_2')
+		reverse('topmenu:menu_2')
 		return HttpResponse(status=200)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
@@ -278,5 +286,22 @@ def invalid_response(request):
 	print "/topmenu/invalid_response/"
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
 	return HttpResponse(status=200)
+
+@csrf_exempt
+def options_menu(request):
+	"""Allows user to view and delete their active listings.
+	"""
+	Listing.objects.filter()
+
+@csrf_exempt
+def search(request):
+
+	querry = request.session['default_data']
+
+	results = []
+	results.append(Listing.objects.get(header__icontains='%s'))
+	results.append(Listing.objects.get(detail__icontains='%s'))
+
+	print results
 
 

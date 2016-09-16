@@ -7,7 +7,7 @@ from django.contrib.auth.models import User as DjangoUser
 class User(DjangoUser):
 	phone_num = models.BigIntegerField(max_length=10)
 	# attempting to debug "integrity error, auth_user_username_key already exists"
-	DjangoUser.username = models.BigIntegerField(default=phone_num)
+	# DjangoUser.username = models.BigIntegerField(default=phone_num)
 	#user_carrier = models.PositiveIntegerField(max_length = 3)
 	user_jointime = models.DateTimeField(auto_now_add=True)
 	user_loc = models.CharField(max_length=20) # read up on CharField parameters. this will eventually make it's own api call to map a radius
