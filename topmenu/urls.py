@@ -14,4 +14,5 @@ urlpatterns = [
 	url(r'^post_description_request/(?P<category>\w+)/', views.post_description_request, name='post_description_request'),
 	url(r'^post_review/(?P<category>\w+)/', views.post_review, name='post_review'),
 	url(r'^post_commit/(?P<category>\w+)/', views.post_commit, name='post_commit'),
+	url(r'^user_dashboard/$', views.user_dashboard, name='user_dashboard'),
 	]

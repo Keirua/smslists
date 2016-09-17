@@ -63,7 +63,7 @@ def menu_2(request):
 		"2": reverse('topmenu:listings', kwargs={"category": "wanted"}),
 		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
 		"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
-		"0": reverse('topmenu:options'),
+		"0": reverse('topmenu:user_dashboard'),
 		# special development session flush
 		"000": reverse('topmenu:session_flush'),
 	}
@@ -78,7 +78,7 @@ def menu_2(request):
 		request.session['active_urls'].clear()
 		request.session['active_urls'] = TOP_MENU_URLS
 
-		menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
+		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 0. User dashboard" % (current_language.for_sale,
 		current_language.wanted, current_language.jobs, 
 		current_language.announcements)
 		
@@ -93,7 +93,7 @@ def menu_2(request):
 		request.session["active_urls"].clear()
 		request.session["active_urls"] = TOP_MENU_URLS
 
-		menu_text = "1. %s, 2. %s, 3. %s, 4. %s" % (current_language.for_sale,
+		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 0. User dashboard" % (current_language.for_sale,
 		current_language.wanted, current_language.jobs,
 		current_language.announcements)
 
@@ -288,20 +288,60 @@ def invalid_response(request):
 	return HttpResponse(status=200)
 
 @csrf_exempt
-def options_menu(request):
+def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 	"""Allows user to view and delete their active listings.
 	"""
-	Listing.objects.filter()
+
+	request.session["active_urls"].clear()
+	request.session['active_urls'][6] = reverse('topmenu:menu_2')
+
+	user_listings_clean = []
+	numbered_list = [1, 2, 3, 4]
+	displayed_list = []
+	next_message = "5. Next"
+	back_message = "6. Back"
+
+	user_listings_raw = Listing.objects.filter(owner_id=(User.objects.filter(
+		request.session['phone_num'])).values_list('id'))[default_lower_bound:default_upper_bound]
+
+	# set listings 'active_urls'
+	for counter, listing in enumerate(user_listings_raw, start=1):
+		request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'listing_id':listing.pk})
+
+	# format sms
+	for x, y in user_listings_raw.values_list('header', 'pub_date'):
+		user_listings_clean.append(("%s, %s/%s/%s") % (x, y.month, y.day, y.year))
+
+	final_list = zip(numbered_list, user_listings_clean)
+
+	for x, y in final_list:
+		displayed_list.append("%s. %s" % (x, y))
+
+
+	if default_upper_bound < len(user_listings_raw):
+
+		displayed_list.append(next_message)
+
+		default_lower_bound = default_lower_bound + 4
+		default_upper_bound = default_upper_bound + 4
+
+		request.session['active_urls'][5] = reverse('topmenu:user_dashboard', 
+			kwargs={'default_lower_bound':default_lower_bound, 'default_upper_bound':default_upper_bound})
+	
+	else:
+		# do nothing because there are either no more pages of results to show
+		# or only one page total of results
+		pass
+
+	displayed_list.append(back_message)
+	displayed_list = "\n".join(displayed_list)
+
+	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_list)
+	return HttpResponse(status=200)
+
 
 @csrf_exempt
 def search(request):
-
-	querry = request.session['default_data']
-
-	results = []
-	results.append(Listing.objects.get(header__icontains='%s'))
-	results.append(Listing.objects.get(detail__icontains='%s'))
-
-	print results
+	pass
 
 
