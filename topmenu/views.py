@@ -302,7 +302,7 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 	back_message = "6. Back"
 
 	user_listings_raw = Listing.objects.filter(owner_id=(User.objects.filter(
-		request.session['phone_num'])).values_list('id'))[default_lower_bound:default_upper_bound]
+		request.session['phone_num'])).values_list('id'))#[default_lower_bound:default_upper_bound]
 
 	# set listings 'active_urls'
 	for counter, listing in enumerate(user_listings_raw, start=1):
