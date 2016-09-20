@@ -9,6 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .languages import *
 import plivo, time
+from django.db.models import Q
 
 
 
@@ -251,13 +252,13 @@ def post_commit(request, category):
 	cancellation_message = "Listing cancelled. Returning to main menu."
 	invalid_input = "Input not recognized. Reply '1' to confirm posting or '9' to cancel."
 
-	print "request.session['default_data'] ="+str(request.session['default_data'])
+	print "request.session['default_data'] ="+request.session['default_data']
 	if request.session['default_data'] == '1': 
 		Listing.objects.create(header=request.session['new_post_subject'], 
 			detail=request.session['new_post_description'], category=category,
 			owner=User.objects.get(phone_num=request.session['phone_num']))
 		send_message(request, PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
-		reverse('topmenu:menu_2')
+		menu_2(request)
 		return HttpResponse(status=200)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
@@ -269,7 +270,7 @@ def post_commit(request, category):
 		del request.session['new_post_subject']
 		del request.session['new_post_description']
 
-		reverse('topmenu:menu_2')
+		menu_2(request)
 		return HttpResponse(status=200)
 	
 	else:
@@ -302,7 +303,7 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 	back_message = "6. Back"
 
 	user_listings_raw = Listing.objects.filter(owner_id=(User.objects.filter(
-		request.session['phone_num'])).values_list('id'))#[default_lower_bound:default_upper_bound]
+		request.session['phone_num'])).values_list('id'))[default_lower_bound:default_upper_bound]
 
 	# set listings 'active_urls'
 	for counter, listing in enumerate(user_listings_raw, start=1):
@@ -341,7 +342,38 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 
 
 @csrf_exempt
-def search(request):
-	pass
+def search_request(request, category):
+	
+	search_request_message = '%s search term? 6. Back' % category
 
+	request.session['active_urls'].clear()
+	request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
+
+
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], search_request_message)
+	return HttpResponse(status=200)
+	request.session['active_urls']['default_url'] = reverse(
+		'topmenu:search_results', kwargs={'category':category})
+
+@csrf_exempt
+def search_results(request, category, default_lower_bound=None, default_upper_bound=4):
+
+
+	user_search_raw = []
+	user_search_raw.append(Listing.objects.filter(Q(category__exact=category), Q(header__icontains=request.session['default_data'])
+		| Q(detail__icontains=request.session['default_data'])).order_by('-pub_date')[default_lower_bound:default_upper_bound])
+
+	for counter, listing in user_listings_raw
+
+	for x, y in user_search_raw.values_list('header', 'detail'):
+
+
+	for counter, listing in enumerate(Listing.objects.filter(category=category).order_by('-pub_date')[:4]):
+
+	request.session["active_urls"][counter+1] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
+	displayed_items.append("%s. %s" % (counter+1, listing.header))
+
+
+
+	print user_search_raw
 
