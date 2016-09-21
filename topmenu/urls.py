@@ -15,4 +15,6 @@ urlpatterns = [
 	url(r'^post_review/(?P<category>\w+)/', views.post_review, name='post_review'),
 	url(r'^post_commit/(?P<category>\w+)/', views.post_commit, name='post_commit'),
 	url(r'^user_dashboard/$', views.user_dashboard, name='user_dashboard'),
+	url(r'^search_request/(?P<category>\w+)/', views.search_request, name='search_request'),
+	url(r'^search_results/(?P<category>\w+)/', views.search_results, name='search_results'),
 	]

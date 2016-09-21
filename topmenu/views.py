@@ -123,9 +123,6 @@ def listings(request, category):
 		request.session["active_urls"][counter+1] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 		displayed_items.append("%s. %s" % (counter+1, listing.header))
 
-
-	# TODO: handle the case when there are no items in the listing categor
-
 	request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 	request.session['active_urls'][6] = reverse('topmenu:menu_2')
 	request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':category})
@@ -362,13 +359,13 @@ def search_results(request, category, default_lower_bound=None, default_upper_bo
 	next_message = "5. Next"
 	back_message = "6. Back"
 
-	for counter, listing in enumerate(Listing.objects.filter(Q(category__exact=category), Q(header__icontains=request.session['default_data'])
-		| Q(detail__icontains=request.session['default_data']), start=1).order_by('-pub_date')[default_lower_bound:default_upper_bound]):
+	for counter, listing in enumerate((Listing.objects.filter(Q(category__exact=category), Q(header__icontains=request.session['default_data'])
+		| Q(detail__icontains=request.session['default_data'])).order_by('-pub_date')[default_lower_bound:default_upper_bound]), start=1):
 		
 		request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 		displayed_items.append('%s. %s' % (counter, listing.header))
 
-	if default_upper_bound < len(user_listings_raw):
+	if default_upper_bound < len(displayed_items):
 
 		displayed_items.append(next_message)
 
@@ -381,7 +378,7 @@ def search_results(request, category, default_lower_bound=None, default_upper_bo
 	else:
 	# do nothing because there are either no more pages of results to show
 	# or only one page total of results
-	pass
+		pass
 
 	displayed_items.append(back_message)
 	displayed_items = "\n".join(displayed_items)
