@@ -296,7 +296,7 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 
 	user_listings_clean = []
 	numbered_list = [1, 2, 3, 4]
-	displayed_list = []
+	displayed_items = []
 	next_message = "5. Next"
 	back_message = "6. Back"
 
@@ -314,12 +314,12 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 	final_list = zip(numbered_list, user_listings_clean)
 
 	for x, y in final_list:
-		displayed_list.append("%s. %s" % (x, y))
+		displayed_items.append("%s. %s" % (x, y))
 
 
 	if default_upper_bound < len(user_listings_raw):
 
-		displayed_list.append(next_message)
+		displayed_items.append(next_message)
 
 		default_lower_bound = default_lower_bound + 4
 		default_upper_bound = default_upper_bound + 4
@@ -332,10 +332,10 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 		# or only one page total of results
 		pass
 
-	displayed_list.append(back_message)
-	displayed_list = "\n".join(displayed_list)
+	displayed_items.append(back_message)
+	displayed_items = "\n".join(displayed_items)
 
-	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_list)
+	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
 @csrf_exempt
