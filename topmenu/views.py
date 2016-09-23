@@ -107,7 +107,7 @@ def menu_2(request):
 		return HttpResponse(status=200)
 
 @csrf_exempt
-def listings(request, category, default_lower_bound=None, default_upper_bound=4):
+def listings(request, category, default_lower_bound=0, default_upper_bound=4):
 	"""
 	2 possible paths:
 
@@ -122,12 +122,13 @@ def listings(request, category, default_lower_bound=None, default_upper_bound=4)
 	back_message = '6. Back'
 	search_message = '7. Search'
 	next_message = '8. Next'
+	no_active_listings_message = 'No active listings in %s.' % category
 
 	displayed_items=[]
 
 	request.session["active_urls"].clear()
 
-	for counter, listing in enumerate((Listing.objects.filter(category=category).order_by('-pub_date')[:4]), start=1):
+	for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
 
 		request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 		displayed_items.append("%s. %s" % (counter, listing.header))
@@ -136,12 +137,13 @@ def listings(request, category, default_lower_bound=None, default_upper_bound=4)
 	request.session['active_urls'][6] = reverse('topmenu:menu_2')
 	request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':category})
 
-	displayed_items.append('5. Post 6. Back')
-	displayed_items = "\n".join(displayed_items)
+	displayed_items.append(post_message)
+	displayed_items.append(back_message)
+	
 
 
 	if len(displayed_items) == 0:
-		displayed_items = 'No active listings in %s. 5. Post 6. Back' % category
+		displayed_items.append(no_active_listings_message)
 
 	elif default_upper_bound < len(displayed_items):
 
@@ -155,16 +157,18 @@ def listings(request, category, default_lower_bound=None, default_upper_bound=4)
 	else:
 		pass
 	# debug code/
-	print "displayed_items = "+displayed_items
+	print "displayed_items = "+str(displayed_items)
 	print 'ACTIVE URLS = '+str(request.session['active_urls'])
 	# /debug code
+
+	displayed_items = "\n".join(displayed_items)
 
 	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
 
 @csrf_exempt
-def listing_detail(request, category, listing_id, from_dashboard=False):
+def listing_detail(request, category, listing_id, default_lower_bound=None, default_upper_bound=None, from_dashboard=False):
 	print "listing_detail"
 	"""
 	2. Using pk in link, call db and pull full
@@ -185,6 +189,9 @@ def listing_detail(request, category, listing_id, from_dashboard=False):
 
 	if from_dashboard == True:
 		request.session['active_urls'][7] = Listing.is_active(False)
+		request.session['active_urls'][6] = reverse('topmenu:user_dashboard', 
+			kwargs={'default_lower_bound':default_lower_bound, 
+			'default_upper_bound':default_upper_bound})
 		displayed_items.append(delete_message)
 	else:
 		# act normally because not from_dashboard=True
@@ -321,7 +328,7 @@ def invalid_response(request):
 	return HttpResponse(status=200)
 
 @csrf_exempt
-def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
+def user_dashboard(request, default_lower_bound=0, default_upper_bound=4):
 	"""Allows user to view and delete their active listings.
 	"""
 
@@ -335,11 +342,14 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 	back_message = "6. Back"
 
 	user_listings_raw = Listing.objects.filter(owner_id=(User.objects.filter(
-		request.session['phone_num'])).values_list('id'))[default_lower_bound:default_upper_bound]
+		request.session['phone_num'])), is_active=True).values_list('id')[default_lower_bound:default_upper_bound]
 
 	# set listings 'active_urls'
 	for counter, listing in enumerate(user_listings_raw, start=1):
-		request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'listing_id':listing.pk, 'from_dashboard':True})
+		request.session['active_urls'][counter] = reverse(
+			'topmenu:listing_detail', kwargs={'listing_id':listing.pk, 
+			'from_dashboard':True, 'default_lower_bound':default_lower_bound,
+			'default_upper_bound':default_upper_bound})
 
 	# format sms
 	for x, y in user_listings_raw.values_list('header', 'pub_date'):
@@ -386,7 +396,7 @@ def search_request(request, category):
 	return HttpResponse(status=200)
 	
 @csrf_exempt
-def search_results(request, category, default_lower_bound=None, default_upper_bound=4):
+def search_results(request, category, default_lower_bound=0, default_upper_bound=4):
 
 	displayed_items = []
 	results_raw = []
@@ -422,4 +432,14 @@ def search_results(request, category, default_lower_bound=None, default_upper_bo
 
 @csrf_exempt
 def voted_listings(request, category, default_lower_bound=None, default_upper_bound=4):
-	pass
+	displayed_items = []
+	in_development_message = '%s listings is still in development. Check back soon.' % (category)
+	back_message = '6. Back'
+
+	displayed_items.append(in_development_message)
+	displayed_items.append(back_message)
+
+	displayed_items = '\n'.join(displayed_items)
+
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
+	return HttpResponse(status=200)
