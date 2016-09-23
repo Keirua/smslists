@@ -61,9 +61,11 @@ def menu_2(request):
 
 	TOP_MENU_URLS = {
 		"1": reverse('topmenu:listings', kwargs={"category": "for_sale"}),
-		"2": reverse('topmenu:listings', kwargs={"category": "wanted"}),
-		"3": reverse('topmenu:listings', kwargs={"category": "jobs"}),
+		"2": reverse('topmenu:listings', kwargs={"category": "jobs"}),
+		"3": reverse('topmenu:listings', kwargs={"category": "rides"}),
 		"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
+		"5": reverse('topmenu:voted_listings', kwargs={'category': 'commentary'}),
+		"6": reverse('topmenu:voted_listings', kwargs={'category': 'emergency'}),
 		"0": reverse('topmenu:user_dashboard'),
 		# special development session flush
 		"000": reverse('topmenu:session_flush'),
@@ -79,9 +81,10 @@ def menu_2(request):
 		request.session['active_urls'].clear()
 		request.session['active_urls'] = TOP_MENU_URLS
 
-		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 0. User dashboard" % (current_language.for_sale,
-		current_language.wanted, current_language.jobs, 
-		current_language.announcements)
+		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 5. %s, 6. %s, 0. User dashboard" % (current_language.for_sale, 
+			current_language.jobs, current_language.rides, 
+			current_language.announcements, current_language.commentary, 
+			current_language.emergency)
 		
 		send_message(request, source=PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
@@ -94,9 +97,10 @@ def menu_2(request):
 		request.session["active_urls"].clear()
 		request.session["active_urls"] = TOP_MENU_URLS
 
-		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 0. User dashboard" % (current_language.for_sale,
-		current_language.wanted, current_language.jobs,
-		current_language.announcements)
+		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 5. %s, 6. %s, 0. User dashboard" % (current_language.for_sale,
+		current_language.jobs, current_language.rides,
+		current_language.announcements, current_language.commentary, 
+		current_language.emergency)
 
 		send_message(request, source=PLIVO_NUMBER, destination=phone_num,
 		menu_text=menu_text)
@@ -114,14 +118,18 @@ def listings(request, category):
 	print "listings()"
 	print "category = %s" % category
 
+	post_message = '5. Post'
+	back_message = '6. Back'
+	search_message = '7. Search'
+
 	displayed_items=[]
 
 	request.session["active_urls"].clear()
 
-	for counter, listing in enumerate(Listing.objects.filter(category=category).order_by('-pub_date')[:4]):
+	for counter, listing in enumerate((Listing.objects.filter(category=category).order_by('-pub_date')[:4]), start=1):
 
-		request.session["active_urls"][counter+1] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
-		displayed_items.append("%s. %s" % (counter+1, listing.header))
+		request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
+		displayed_items.append("%s. %s" % (counter, listing.header))
 
 	request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 	request.session['active_urls'][6] = reverse('topmenu:menu_2')
@@ -145,18 +153,25 @@ def listings(request, category):
 
 
 @csrf_exempt
-def listing_detail(request, category, listing_id):
+def listing_detail(request, category, listing_id, from_dashboard=False):
 	print "listing_detail"
 	"""
 	2. Using pk in link, call db and pull full
 	entry. Send SMS and map possible corresponding possible link responses.
 	Update session.
 	"""
+	displayed_items = []
+	delete_message = '7. Delete listing.'
 
 	request.session['active_urls'].clear()
 	request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
 
 	listing = Listing.objects.get(pk=listing_id)
+
+	if from_dashboard = True:
+		request.session['active_urls'][7] = Listing.is_active(False)
+
+
 
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], listing.detail+' 6. Back')
 	return HttpResponse(status=200)
@@ -291,7 +306,7 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 	"""Allows user to view and delete their active listings.
 	"""
 
-	request.session["active_urls"].clear()
+	request.session['active_urls'].clear()
 	request.session['active_urls'][6] = reverse('topmenu:menu_2')
 
 	user_listings_clean = []
@@ -305,7 +320,7 @@ def user_dashboard(request, default_lower_bound=None, default_upper_bound=4):
 
 	# set listings 'active_urls'
 	for counter, listing in enumerate(user_listings_raw, start=1):
-		request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'listing_id':listing.pk})
+		request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'listing_id':listing.pk, 'from_dashboard':True})
 
 	# format sms
 	for x, y in user_listings_raw.values_list('header', 'pub_date'):

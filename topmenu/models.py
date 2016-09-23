@@ -25,6 +25,7 @@ class Listing(models.Model):
 	pub_date = models.DateTimeField(auto_now_add=True)
 	owner = models.ForeignKey(User)
 	category = models.CharField(max_length=40)
+	is_active = models.BooleanField(default=True)
 
 	def __str__(self):
 		return "%s, %s" % (self.header, self.detail)

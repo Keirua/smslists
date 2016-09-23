@@ -7,9 +7,11 @@ class Language(object):
 		self.wanted = wanted
 		self.jobs = jobs
 		self.announcements = announcements
+		self.rides = rides
+		self.emergency = emergency
 
 French = Language(for_sale="À vendre", wanted = "Demande de", jobs = "Emploi", announcements = "Annonces")
-English = Language(for_sale = "For sale", wanted = "Wanted", jobs = "Jobs", announcements = "Announcements")
+English = Language(for_sale = "For sale", wanted = "Wanted", jobs = "Jobs", announcements = "Announcements", rides = "Rides", emergency = "Emergency")
 Spanish = Language(for_sale = "Se vende", wanted = "Se busca", jobs = "Trabajo", announcements = "Anuncios")
 
 LANGUAGES = {'French':French, 'English':English, 'Spanish':Spanish}
