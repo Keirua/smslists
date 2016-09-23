@@ -107,7 +107,7 @@ def menu_2(request):
 		return HttpResponse(status=200)
 
 @csrf_exempt
-def listings(request, category):
+def listings(request, category, default_lower_bound=None, default_upper_bound=4):
 	"""
 	2 possible paths:
 
@@ -121,6 +121,7 @@ def listings(request, category):
 	post_message = '5. Post'
 	back_message = '6. Back'
 	search_message = '7. Search'
+	next_message = '8. Next'
 
 	displayed_items=[]
 
@@ -141,6 +142,16 @@ def listings(request, category):
 
 	if len(displayed_items) == 0:
 		displayed_items = 'No active listings in %s. 5. Post 6. Back' % category
+
+	elif default_upper_bound < len(displayed_items):
+
+		displayed_items.append(next_message)
+
+		default_lower_bound = default_lower_bound + 4
+		default_upper_bound = default_upper_bound + 4
+
+		request.session['active_urls'][8] = reverse('topmenu:listings', 
+			kwargs={'default_lower_bound':default_lower_bound, 'default_upper_bound':default_upper_bound})
 	else:
 		pass
 	# debug code/
@@ -162,18 +173,26 @@ def listing_detail(request, category, listing_id, from_dashboard=False):
 	"""
 	displayed_items = []
 	delete_message = '7. Delete listing.'
+	back_message = '6. Back'
 
 	request.session['active_urls'].clear()
 	request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
 
 	listing = Listing.objects.get(pk=listing_id)
 
-	if from_dashboard = True:
+	displayed_items.append(listing.detail)
+	displayed_items.append(back_message)
+
+	if from_dashboard == True:
 		request.session['active_urls'][7] = Listing.is_active(False)
+		displayed_items.append(delete_message)
+	else:
+		# act normally because not from_dashboard=True
+		pass
 
+	displayed_items = '\n'.join(displayed_items)
 
-
-	send_message(request, PLIVO_NUMBER, request.session['phone_num'], listing.detail+' 6. Back')
+	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
 	return HttpResponse(status=200)
 
 @csrf_exempt
@@ -400,3 +419,7 @@ def search_results(request, category, default_lower_bound=None, default_upper_bo
 
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
 	return HttpResponse(status=200)
+
+@csrf_exempt
+def voted_listings(request, category, default_lower_bound=None, default_upper_bound=4):
+	pass
