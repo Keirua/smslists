@@ -10,13 +10,35 @@ from datetime import datetime
 from .languages import *
 import plivo, time
 from django.db.models import Q
+# only for django 1.9:
+from django.views.generic import View, ListView
+from twilio.rest import TwilioRestClient 
+
+ 
+# TWILIOAPI
+ACCOUNT_SID = "AC0b5cdee16cd76023dd0784ca80fdbaa8" 
+AUTH_TOKEN = "336894260c0040444134344d86886a3e"
+PLIVO_NUMBER = "17472221816"
+ 
+
+def send_message(request, source, destination, menu_text):
+	client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
+ 
+	client.messages.create(
+	    to=destination, 
+	    from_=source, 
+	    body=menu_text,  
+	)
+
+	request.session['last_message'] = menu_text
 
 
-
+#PLIVOAPI:
+"""
 PLIVO_NUMBER = "18058643381" # in the future will call deployment.txts
 auth_id = "MANGVIYZY0ZMFIMTIWOG"
 auth_token = "Yzc3OTgzZmU4MGIyNDI4ODgzMWE1MWExOWYxZTcx"
-
+"""
 
 ###############
 def index(request):
@@ -30,7 +52,8 @@ def detail(request, detail_id):
 	detail_display = get_object_or_404(Listing, pk = detail_id)
 	return render(request, 'topmenu/detail.html', {'apples': detail_display})
 ###############
-
+#PLIVOAPI
+""" 
 def send_message(request, source, destination, menu_text):
 	p = plivo.RestAPI(auth_id, auth_token)
 	params = {
@@ -43,6 +66,7 @@ def send_message(request, source, destination, menu_text):
 	response = p.send_message(params)
 	request.session['last_message'] = menu_text
 	return response
+"""
 
 @csrf_exempt
 def session_flush(request):
@@ -327,6 +351,9 @@ def invalid_response(request):
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
 	return HttpResponse(status=200)
 
+class UserDashboard(ListView):
+	pass
+
 @csrf_exempt
 def user_dashboard(request, default_lower_bound=0, default_upper_bound=4):
 	"""Allows user to view and delete their active listings.
@@ -382,6 +409,18 @@ def user_dashboard(request, default_lower_bound=0, default_upper_bound=4):
 	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
+class SearchRequest(View):
+
+	def post(self, request, category):
+		search_request_message = '%s search term? 6. Back' % category
+
+		request.session['active_urls'].clear()
+		request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
+
+		send_message(request, PLIVO_NUMBER, request.session['phone_num'], search_request_message)
+		request.session['active_urls']['default_url'] = reverse('topmenu:search_results', kwargs={'category':category})
+		return HttpResponse(status=200)
+"""
 @csrf_exempt
 def search_request(request, category):
 	
@@ -394,6 +433,7 @@ def search_request(request, category):
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], search_request_message)
 	request.session['active_urls']['default_url'] = reverse('topmenu:search_results', kwargs={'category':category})
 	return HttpResponse(status=200)
+"""
 	
 @csrf_exempt
 def search_results(request, category, default_lower_bound=0, default_upper_bound=4):

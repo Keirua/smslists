@@ -48,8 +48,10 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 		request.session.set_expiry(300)
 
-		message_content = request.POST.get('Text')
+		message_content = request.POST.get('Body')
 		messageuuid = request.POST.get('MessageUUID')
+
+		print 'message_content = %s' % message_content
 
 		if 'active_urls' in request.session:
 			if message_content in request.session['active_urls']:
