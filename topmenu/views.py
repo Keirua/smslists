@@ -78,6 +78,20 @@ def session_flush(request):
 
 	return HttpResponse(status=200)
 
+class MainMenu(View):
+	phone_num = request.session['phone_num'] or '12345678901'
+
+	def 
+
+
+
+
+
+
+
+
+
+
 @csrf_exempt
 def menu_2(request): 
 
