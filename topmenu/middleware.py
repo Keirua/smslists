@@ -71,7 +71,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 				else:
 					if len(request.session['active_urls']) == 0:
-						request.path_info = '/topmenu/menu_2/'
+						request.path_info = reverse('topmenu:menu_2')
 
 						print "3rd option."
 						session_status_tracker(request)
@@ -82,7 +82,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 						session_status_tracker(request)
 
 		else:
-			request.path_info = '/topmenu/menu_2/'
+			request.path_info = reverse('topmenu:menu_2')
 			request.session['active_urls'] = {}
 
 			session_status_tracker(request)

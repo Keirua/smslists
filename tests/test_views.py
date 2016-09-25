@@ -41,7 +41,7 @@ class CorrectSMSSent(BaseTest):
 class MainMenuUnitTests(BaseTest):
 	"""Unit tests for the main menu (aka menu_2)"""
 
-	def test_menu_2(self):
+	def test_MainMenu(self):
 		"""NEEDS TO test that menu_2 creates a new user database entry when 
 		required. Tests that 'active_urls' = TOP_MENU_URLS. Tests that for 
 		both new and returning users, HttpResponse(status=200) is returned.

@@ -1,4 +1,4 @@
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
@@ -8,11 +8,14 @@ from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .languages import *
-import plivo, time
+import plivo, time, twilio
 from django.db.models import Q
 # only for django 1.9:
-from django.views.generic import View, ListView
-from twilio.rest import TwilioRestClient 
+from django.views.generic import View, ListView, TemplateView
+from twilio.rest import TwilioRestClient
+from braces.views import CsrfExemptMixin
+import twilio.twiml
+from django.template.response import SimpleTemplateResponse
 
  
 # TWILIOAPI
@@ -20,6 +23,8 @@ ACCOUNT_SID = "AC0b5cdee16cd76023dd0784ca80fdbaa8"
 AUTH_TOKEN = "336894260c0040444134344d86886a3e"
 PLIVO_NUMBER = "17472221816"
  
+
+
 
 def send_message(request, source, destination, menu_text):
 	client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 
@@ -31,6 +36,34 @@ def send_message(request, source, destination, menu_text):
 	)
 
 	request.session['last_message'] = menu_text
+
+
+
+class TwilioResponseMixin(object):
+	def dispatch(self, request, *args, **kwargs):
+      
+		response = super(TwilioResponseMixin, self).dispatch(request, *args, **kwargs)
+  		
+  		# handle view returning httpresponse instead of string (for generic views)
+		if isinstance(response, HttpResponse):
+			if isinstance(response, SimpleTemplateResponse):
+				response.render()
+			content = response.content
+		
+		elif isinstance(response, str):
+			content = response
+
+		twilio_response = twilio.twiml.Response()
+		twilio_response.message(msg=content, to=request.session['phone_num'], 
+			sender=PLIVO_NUMBER)
+		response = HttpResponse(content=str(twilio_response))
+
+
+		return response
+
+
+
+
 
 
 #PLIVOAPI:
@@ -78,71 +111,55 @@ def session_flush(request):
 
 	return HttpResponse(status=200)
 
-class MainMenu(View):
-	phone_num = request.session['phone_num'] or '12345678901'
-
-	def 
 
 
 
-
-
-
-
-
-
-
-@csrf_exempt
-def menu_2(request): 
-
-	phone_num = request.session['phone_num'] or '12345678901'
-
+class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
+	
 	TOP_MENU_URLS = {
-		"1": reverse('topmenu:listings', kwargs={"category": "for_sale"}),
-		"2": reverse('topmenu:listings', kwargs={"category": "jobs"}),
-		"3": reverse('topmenu:listings', kwargs={"category": "rides"}),
-		"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
-		"5": reverse('topmenu:voted_listings', kwargs={'category': 'commentary'}),
-		"6": reverse('topmenu:voted_listings', kwargs={'category': 'emergency'}),
-		"0": reverse('topmenu:user_dashboard'),
+		"1": reverse_lazy('topmenu:listings', kwargs={"category": "for_sale"}),
+		"2": reverse_lazy('topmenu:listings', kwargs={"category": "jobs"}),
+		"3": reverse_lazy('topmenu:listings', kwargs={"category": "rides"}),
+		"4": reverse_lazy('topmenu:listings', kwargs={"category": "announcements"}),
+		"5": reverse_lazy('topmenu:voted_listings', kwargs={'category': 'commentary'}),
+		"6": reverse_lazy('topmenu:voted_listings', kwargs={'category': 'emergency'}),
+		"0": reverse_lazy('topmenu:user_dashboard'),
 		# special development session flush
-		"000": reverse('topmenu:session_flush'),
-	}
+		"000": reverse_lazy('topmenu:session_flush'),
+	}	
 
-	if  User.objects.filter(phone_num=phone_num).count() == 0:
-		print "menu_2/create_user"
+	template_name = 'mainmenu.txt'
+
+	def get_context_data(self):
 		
-		User.objects.create(phone_num=phone_num, user_loc='Los Angeles')
+		phone_num = self.request.session['phone_num'] or '12345678901'
 
-		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
-		
-		request.session['active_urls'].clear()
-		request.session['active_urls'] = TOP_MENU_URLS
+		if  User.objects.filter(phone_num=phone_num).count() == 0:
+			print "menu_2/create_user"
+			
+			User.objects.create(phone_num=phone_num, user_loc='Los Angeles')
 
-		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 5. %s, 6. %s, 0. User dashboard" % (current_language.for_sale, 
-			current_language.jobs, current_language.rides, 
-			current_language.announcements, current_language.commentary, 
-			current_language.emergency)
-		
-		send_message(request, source=PLIVO_NUMBER, destination=phone_num,
-		menu_text=menu_text)
-		return HttpResponse(status=200)
+			current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+			
+			self.request.session['active_urls'].clear()
+			self.request.session['active_urls'] = self.TOP_MENU_URLS
+			
+			return {'current_language':current_language}
 
-	else:
-		print "menu_2()"
-		current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
+		else:
+			print "menu_2()"
+			current_language = LANGUAGES[User.objects.get(phone_num=phone_num).user_language]
 
-		request.session["active_urls"].clear()
-		request.session["active_urls"] = TOP_MENU_URLS
+			self.request.session["active_urls"].clear()
+			self.request.session["active_urls"] = self.TOP_MENU_URLS
 
-		menu_text = "1. %s, 2. %s, 3. %s, 4. %s, 5. %s, 6. %s, 0. User dashboard" % (current_language.for_sale,
-		current_language.jobs, current_language.rides,
-		current_language.announcements, current_language.commentary, 
-		current_language.emergency)
+			return {'current_language':current_language}
 
-		send_message(request, source=PLIVO_NUMBER, destination=phone_num,
-		menu_text=menu_text)
-		return HttpResponse(status=200)
+	def post(self, request, *args): 
+			# get method looks up template
+			return self.get(request, *args)
+
+
 
 @csrf_exempt
 def listings(request, category, default_lower_bound=0, default_upper_bound=4):
@@ -423,17 +440,16 @@ def user_dashboard(request, default_lower_bound=0, default_upper_bound=4):
 	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
-class SearchRequest(View):
+class SearchRequest(TwilioResponseMixin, View):
 
 	def post(self, request, category):
 		search_request_message = '%s search term? 6. Back' % category
 
 		request.session['active_urls'].clear()
-		request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
-
-		send_message(request, PLIVO_NUMBER, request.session['phone_num'], search_request_message)
+		request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})		
 		request.session['active_urls']['default_url'] = reverse('topmenu:search_results', kwargs={'category':category})
-		return HttpResponse(status=200)
+		
+		return search_request_message
 """
 @csrf_exempt
 def search_request(request, category):
