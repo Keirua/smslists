@@ -58,13 +58,7 @@ class TwilioResponseMixin(object):
 			sender=PLIVO_NUMBER)
 		response = HttpResponse(content=str(twilio_response))
 
-
 		return response
-
-
-
-
-
 
 #PLIVOAPI:
 """
@@ -111,9 +105,6 @@ def session_flush(request):
 
 	return HttpResponse(status=200)
 
-
-
-
 class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 	
 	TOP_MENU_URLS = {
@@ -158,6 +149,21 @@ class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 	def post(self, request, *args): 
 			# get method looks up template
 			return self.get(request, *args)
+
+
+class Listings(CsrfExemptMixin, ListView):
+
+	queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+	page_size = 4
+
+	def paginate_queryset(self, query_set, page_size):
+		# what to return?
+
+	def get(self, request, *args, **kwargs):
+		context = self.get_context_data(**kwargs)
+		return self.render_to_response(context)
+		
+
 
 
 
