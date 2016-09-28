@@ -47,20 +47,19 @@ class MainMenuUnitTests(BaseTest):
 		both new and returning users, HttpResponse(status=200) is returned.
 		"""
 
-		# Precondition check verifies no users currently in test db.
-		self.assertEqual(User.objects.count(), 0)
+		# Precondition check verifies 1 user currently in test db.
+		self.assertEqual(User.objects.count(), 1)
 
 		# simulate incoming request
-		self.c.post('/', {'From':'12345678901', 'Text':'1'})
 
 		# why again is this needed?
-		response = self.c.post(reverse('topmenu:menu_2'), kwargs={'From':'12345678901', 'Text':'1'})
+		response = self.c.post('/', {'From':'12345678901', 'Body':'1'})
 
 
-		if create_user is not None:
+		if User.objects.filter(phone_num='12345678901').count() == 0:
 			
 			# Verify that db entry for new user was created
-			self.assertEqual(User.objects.count(), 1)
+			self.assertEqual(User.objects.count(), 2)
 
 			# self.assertEqual(self.client.session['active_urls'], views.menu_2.TOP_MENU_URLS)
 			self.assertEqual(response.status_code, 200)

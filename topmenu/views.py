@@ -44,7 +44,10 @@ class TwilioResponseMixin(object):
       
 		response = super(TwilioResponseMixin, self).dispatch(request, *args, **kwargs)
   		
-  		# handle view returning httpresponse instead of string (for generic views)
+  		# handle view returning httpresponse instead of string.
+  		# this will allow more customizability if some functions return
+  		# and others return httpresponse objects.
+
 		if isinstance(response, HttpResponse):
 			if isinstance(response, SimpleTemplateResponse):
 				response.render()
@@ -107,21 +110,29 @@ def session_flush(request):
 
 class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 	
-	TOP_MENU_URLS = {
-		"1": reverse_lazy('topmenu:listings', kwargs={"category": "for_sale"}),
-		"2": reverse_lazy('topmenu:listings', kwargs={"category": "jobs"}),
-		"3": reverse_lazy('topmenu:listings', kwargs={"category": "rides"}),
-		"4": reverse_lazy('topmenu:listings', kwargs={"category": "announcements"}),
-		"5": reverse_lazy('topmenu:voted_listings', kwargs={'category': 'commentary'}),
-		"6": reverse_lazy('topmenu:voted_listings', kwargs={'category': 'emergency'}),
-		"0": reverse_lazy('topmenu:user_dashboard'),
-		# special development session flush
-		"000": reverse_lazy('topmenu:session_flush'),
-	}	
-
 	template_name = 'mainmenu.txt'
 
-	def get_context_data(self):
+	def __init__(self, *args, **kwargs):
+
+		super(MainMenu, self).__init__(*args, **kwargs)
+
+		self.TOP_MENU_URLS = {
+			"1": reverse('topmenu:listings', kwargs={"category": "for_sale"}),
+			"2": reverse('topmenu:listings', kwargs={"category": "jobs"}),
+			"3": reverse('topmenu:listings', kwargs={"category": "rides"}),
+			"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
+			"5": reverse('topmenu:voted_listings', kwargs={'category': 'commentary'}),
+			"6": reverse('topmenu:voted_listings', kwargs={'category': 'emergency'}),
+			"0": reverse('topmenu:user_dashboard'),
+			# special development session flush
+			"000": reverse('topmenu:session_flush'),
+		}	
+
+	# after being passed from below-written post method to generic view get(),
+	# request and *args, **kwargs are passed are passed get_context_data(). 
+	# After context dict is generated, render_to_response in TemplateResponseMixin
+	# (method of TemplateView) applies context and returns back to TwilioResponseMixin.dispatch()
+	def get_context_data(self, *args, **kwargs):
 		
 		phone_num = self.request.session['phone_num'] or '12345678901'
 
@@ -146,36 +157,68 @@ class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 
 			return {'current_language':current_language}
 
-	def post(self, request, *args): 
-			# get method looks up template
-			return self.get(request, *args)
+	# after dispatch, this is the first method to be called.
+	def post(self, request, *args, **kwargs): 
+			# return get method instead of post because 1 - at this point none
+			# of the functional http request attributes matter (this is all
+			# internal), 2 - this allows for the use of other generic views.
+			# *args and **kwargs are whatever is appended in url config.
+			return self.get(request, *args, **kwargs)
 
 
 class Listings(CsrfExemptMixin, ListView):
 
-	queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+	template_name = 'listings.txt'
+	
 	page_size = 4
 
-	def paginate_queryset(self, query_set, page_size):
-		pass# what to return?
+	def post(self, request, *args, **kwargs):
+		return self.get(request, *args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
-		context = self.get_context_data(**kwargs)
-		return self.render_to_response(context)
+		queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+		self.object
+
+	def get_context_data(self, *args, **kwargs):
 		
+		print "listings()"
+		print "category = %s" % self.category
+
+		post_message = '5. Post'
+		back_message = '6. Back'
+		search_message = '7. Search'
+		next_message = '8. Next'
+		no_active_listings_message = 'No active listings in %s.' % category
+
+		displayed_items=[]
+
+		request.session["active_urls"].clear()
+
+		for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
+
+			request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
+			displayed_items.append("%s. %s" % (counter, listing.header))
+
+		request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
+		request.session['active_urls'][6] = reverse('topmenu:menu_2')
+		request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':category})
+
+		displayed_items.append(post_message)
+		displayed_items.append(back_message)
+		
+		context = displayed_items
+
+		return super(MultipleObjectMixin, self).get_context_data(**context)
 
 
 
+
+
+"""
 
 @csrf_exempt
 def listings(request, category, default_lower_bound=0, default_upper_bound=4):
-	"""
-	2 possible paths:
 
-	1. No listings stored in session (message_content=None); Pull location and
-	category from session; call db and pull 4 entries and generate link from
-	pk; map links to user-viewable commands and send; update session.
-	"""
 	print "listings()"
 	print "category = %s" % category
 
@@ -226,7 +269,7 @@ def listings(request, category, default_lower_bound=0, default_upper_bound=4):
 
 	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
-
+"""
 
 @csrf_exempt
 def listing_detail(request, category, listing_id, default_lower_bound=None, default_upper_bound=None, from_dashboard=False):
@@ -385,8 +428,18 @@ def invalid_response(request):
 	message and a second message with active commands.
 	"""
 	print "/topmenu/invalid_response/"
-	send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
-	return HttpResponse(status=200)
+
+	error_message = 'Not a valid command. Returning to main menu.'
+
+	if 'last_message' in request.session: 
+
+		send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
+		return HttpResponse(status=200)
+
+	else:
+		send_message(request, PLIVO_NUMBER, request.session['phone_num'], error_message)
+		return MainMenu.as_view()(request)
+		
 
 class UserDashboard(ListView):
 	pass

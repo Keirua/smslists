@@ -6,14 +6,14 @@ from .base import *
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+# MIDDLEWARE_CLASSES += ( 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 
-TEMPLATE_CONTEXT_PROCESSORS += (
-    'django.core.context_processors.debug',
-)
+# TEMPLATE_CONTEXT_PROCESSORS += (
+#    'django.core.context_processors.debug',
+# )
 
 INSTALLED_APPS += (
-   'debug_toolbar',
+#   'debug_toolbar',
     'django_extensions',
     'django_nose'
 )
