@@ -157,7 +157,7 @@ class Listings(CsrfExemptMixin, ListView):
 	page_size = 4
 
 	def paginate_queryset(self, query_set, page_size):
-		# what to return?
+		pass# what to return?
 
 	def get(self, request, *args, **kwargs):
 		context = self.get_context_data(**kwargs)
