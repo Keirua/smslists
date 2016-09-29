@@ -172,31 +172,38 @@ class Listings(CsrfExemptMixin, ListView):
 	
 	page_size = 4
 
+	queryset = Listing.objects.filter(category='for_sale', is_active=True)
+
+	context_object_name = 'listingsview'
+
 	def post(self, request, *args, **kwargs):
+		print 'def post KWARGS = %s' % kwargs
 		return self.get(request, *args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
-		queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
-		self.object
+		context = self.get_context_data(request, *args, **kwargs)
+		return self.render_to_response(context)
 
-	def get_context_data(self, *args, **kwargs):
+	def get_context_data(self, request, category):
 		
 		print "listings()"
-		print "category = %s" % self.category
+		print "category = %s" % category
 
 		post_message = '5. Post'
 		back_message = '6. Back'
 		search_message = '7. Search'
 		next_message = '8. Next'
-		no_active_listings_message = 'No active listings in %s.' % category
+		# no_active_listings_message = 'No active listings in %s.' % self.kwargs.category
 
 		displayed_items=[]
 
-		request.session["active_urls"].clear()
+		# Listings.queryset = Listing.objects.filter(category=**kwargs.category, is_active=True).order_by('-pub_date')
+
+		self.request.session["active_urls"].clear()
 
 		for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
 
-			request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
+			self.request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 			displayed_items.append("%s. %s" % (counter, listing.header))
 
 		request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
@@ -206,9 +213,9 @@ class Listings(CsrfExemptMixin, ListView):
 		displayed_items.append(post_message)
 		displayed_items.append(back_message)
 		
-		context = displayed_items
+		context = {'displayed_items':displayed_items}
 
-		return super(MultipleObjectMixin, self).get_context_data(**context)
+		return super(ListView, self).get_context_data(**context)
 
 
 
