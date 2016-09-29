@@ -1,1 +1,6 @@
-1. {{current_language.for_sale}}
+1. {{ current_language.for_sale }}
+2. {{ current_language.jobs }}
+3. {{ current_language.rides }}
+4. {{ current_language.announcements }}
+5. {{ current_language.commentary }}
+6. {{ current_language.emergency }}

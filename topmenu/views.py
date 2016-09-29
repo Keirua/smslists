@@ -170,22 +170,26 @@ class Listings(CsrfExemptMixin, ListView):
 
 	template_name = 'listings.txt'
 	
-	page_size = 4
-
-	queryset = Listing.objects.filter(category='for_sale', is_active=True)
-
-	context_object_name = 'listingsview'
 
 	def post(self, request, *args, **kwargs):
+
 		print 'def post KWARGS = %s' % kwargs
 		return self.get(request, *args, **kwargs)
 
 	def get(self, request, *args, **kwargs):
+
+		self.object_list = self.get_queryset(request, *args, **kwargs)
 		context = self.get_context_data(request, *args, **kwargs)
 		return self.render_to_response(context)
 
+	def get_queryset(self, request, category):
+		queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+		return queryset
+
 	def get_context_data(self, request, category):
 		
+		page_size = 4
+
 		print "listings()"
 		print "category = %s" % category
 
@@ -197,23 +201,26 @@ class Listings(CsrfExemptMixin, ListView):
 
 		displayed_items=[]
 
-		# Listings.queryset = Listing.objects.filter(category=**kwargs.category, is_active=True).order_by('-pub_date')
+		# queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
 
 		self.request.session["active_urls"].clear()
 
-		for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
+		for counter, listing in enumerate(self.object_list):
+			self.request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
 
-			self.request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
-			displayed_items.append("%s. %s" % (counter, listing.header))
+		#for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
+
+		#	self.request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
+		#	displayed_items.append("%s. %s" % (counter, listing.header))
 
 		request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 		request.session['active_urls'][6] = reverse('topmenu:menu_2')
 		request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':category})
 
-		displayed_items.append(post_message)
-		displayed_items.append(back_message)
+		# displayed_items.append(post_message)
+		# displayed_items.append(back_message)
 		
-		context = {'displayed_items':displayed_items}
+		# context = {'displayed_items':displayed_items}
 
 		return super(ListView, self).get_context_data(**context)
 
@@ -569,11 +576,14 @@ def search_results(request, category, default_lower_bound=0, default_upper_bound
 @csrf_exempt
 def voted_listings(request, category, default_lower_bound=None, default_upper_bound=4):
 	displayed_items = []
-	in_development_message = '%s listings is still in development. Check back soon.' % (category)
-	back_message = '6. Back'
+	in_development_message = '%s listings is still in development. Check back soon.' % (category.title())
+	back_message = 'Press'
 
 	displayed_items.append(in_development_message)
 	displayed_items.append(back_message)
+
+	time.sleep(2)
+
 
 	displayed_items = '\n'.join(displayed_items)
 
