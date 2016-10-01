@@ -154,7 +154,7 @@ class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 
 			self.request.session["active_urls"].clear()
 			self.request.session["active_urls"] = self.TOP_MENU_URLS
-
+			print {'current_language':current_language}
 			return {'current_language':current_language}
 
 	# after dispatch, this is the first method to be called.
@@ -166,10 +166,9 @@ class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 			return self.get(request, *args, **kwargs)
 
 
-class Listings(CsrfExemptMixin, ListView):
+class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 
 	template_name = 'listings.txt'
-	
 
 	def post(self, request, *args, **kwargs):
 
@@ -184,6 +183,7 @@ class Listings(CsrfExemptMixin, ListView):
 
 	def get_queryset(self, request, category):
 		queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+		print 'get_queryset() returns: %s' % queryset
 		return queryset
 
 	def get_context_data(self, request, category):
@@ -199,19 +199,19 @@ class Listings(CsrfExemptMixin, ListView):
 		next_message = '8. Next'
 		# no_active_listings_message = 'No active listings in %s.' % self.kwargs.category
 
-		displayed_items=[]
+		# displayed_items=[]
 
 		# queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
 
 		self.request.session["active_urls"].clear()
 
-		for counter, listing in enumerate(self.object_list):
+
+
+
+		for counter, listing in enumerate((self.object_list), start=1):
 			self.request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
+		#	displayed_items.append('%s' % (listing))
 
-		#for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
-
-		#	self.request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
-		#	displayed_items.append("%s. %s" % (counter, listing.header))
 
 		request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
 		request.session['active_urls'][6] = reverse('topmenu:menu_2')
@@ -219,10 +219,13 @@ class Listings(CsrfExemptMixin, ListView):
 
 		# displayed_items.append(post_message)
 		# displayed_items.append(back_message)
-		
-		# context = {'displayed_items':displayed_items}
 
-		return super(ListView, self).get_context_data(**context)
+
+		print {'self.object_list':self.object_list}
+		return {'self.object_list':self.object_list}
+		
+		#print context
+		#return super(ListView, self).get_context_data(**context)
 
 
 

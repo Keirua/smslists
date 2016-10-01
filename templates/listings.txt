@@ -1,3 +1,7 @@
-{% for x in context %}
-	{{x}}
+Test Test Test
+
+<ul>
+{% for listing in self.object_list %}
+    <li>{{ listing.name }}</li>
 {% endfor %}
+</ul>
