@@ -1,7 +1,3 @@
-Test Test Test
-
-<ul>
-{% for listing in self.object_list %}
+{% for listing in self.object_list.iteritems() %}
     <li>{{ listing.name }}</li>
 {% endfor %}
-</ul>
