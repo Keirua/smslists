@@ -1,21 +1,25 @@
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.shortcuts import get_object_or_404, render
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template import loader
 from .models import Listing, User
-from django.http import Http404
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
 from .languages import *
 import plivo, time, twilio
 from django.db.models import Q
-# only for django 1.9:
 from django.views.generic import View, ListView, TemplateView
+from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from twilio.rest import TwilioRestClient
 from braces.views import CsrfExemptMixin
 import twilio.twiml
 from django.template.response import SimpleTemplateResponse
+from django.db.models.query import QuerySet
+from django.core.exceptions import ImproperlyConfigured
+from django.core.paginator import InvalidPage, Paginator
+from django.utils import six
+from django.utils.translation import ugettext as _
 
  
 # TWILIOAPI
@@ -178,12 +182,47 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 	def get(self, request, *args, **kwargs):
 
 		self.object_list = self.get_queryset(request, *args, **kwargs)
+		allow_empty = self.get_allow_empty()
+
+		if not allow_empty:
+			if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
+				is_empty = not self.object_list.exists()
+			else:
+				is_empty = len(self.object_list) == 0
+			if is_empty:
+				raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
+					'class_name':self.__class__.__name__,
+					})
+
 		context = self.get_context_data(request, *args, **kwargs)
 		return self.render_to_response(context)
 
 	def get_queryset(self, request, category):
-		queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+
+		self.queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
+
+		if self.queryset is not None:
+			queryset = self.queryset
+			if isinstance(queryset, QuerySet):
+				queryset = queryset.all()
+		elif self.model is not None:
+			queryset = self.model._default_manager.all()
+		else:
+			raise ImproperlyConfigured(
+				"%(cls)s is missing a QuerySet. Define "
+				"%(cls)s.model, %(cls)s.queryset, or override "
+				"%(cls)s.get_queryset()." % {
+				    'cls': self.__class__.__name__
+				}
+			)
+		ordering = self.get_ordering()
+		if ordering:
+			if isinstance(ordering, six.string_types):
+				ordering = (ordering,)
+			queryset = queryset.order_by(*ordering)
+
 		print 'get_queryset() returns: %s' % queryset
+
 		return queryset
 
 	def get_context_data(self, request, category):
