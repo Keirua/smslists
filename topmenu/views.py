@@ -259,9 +259,9 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		# displayed_items.append(post_message)
 		# displayed_items.append(back_message)
 
+		context = {'self.object_list':self.object_list}
 
-		print {'self.object_list':self.object_list}
-		return {'self.object_list':self.object_list}
+		return context
 		
 		#print context
 		#return super(ListView, self).get_context_data(**context)
