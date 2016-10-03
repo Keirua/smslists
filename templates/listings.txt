@@ -1,3 +1,2 @@
-{% for listing in self.object_list %}
-    <li>{{ listing.name }}</li>
+{% for listing in page_obj.object_list %}{{listing.header}}
 {% endfor %}

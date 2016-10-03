@@ -174,158 +174,44 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 
 	template_name = 'listings.txt'
 
+	paginate_by = 2
+
+	ordering = '-pub_date'
+
+	model = Listing
+
 	def post(self, request, *args, **kwargs):
 
 		print 'def post KWARGS = %s' % kwargs
 		return self.get(request, *args, **kwargs)
 
-	def get(self, request, *args, **kwargs):
+	def get_queryset(self):
 
-		self.object_list = self.get_queryset(request, *args, **kwargs)
-		allow_empty = self.get_allow_empty()
+		return super(Listings, self).get_queryset().filter(category=self.kwargs['category'], is_active=True)
 
-		if not allow_empty:
-			if self.get_paginate_by(self.object_list) is not None and hasattr(self.object_list, 'exists'):
-				is_empty = not self.object_list.exists()
-			else:
-				is_empty = len(self.object_list) == 0
-			if is_empty:
-				raise Http404(_("Empty list and '%(class_name)s.allow_empty' is False.") % {
-					'class_name':self.__class__.__name__,
-					})
-
-		context = self.get_context_data(request, *args, **kwargs)
-		return self.render_to_response(context)
-
-	def get_queryset(self, request, category):
-
-		self.queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
-
-		if self.queryset is not None:
-			queryset = self.queryset
-			if isinstance(queryset, QuerySet):
-				queryset = queryset.all()
-		elif self.model is not None:
-			queryset = self.model._default_manager.all()
-		else:
-			raise ImproperlyConfigured(
-				"%(cls)s is missing a QuerySet. Define "
-				"%(cls)s.model, %(cls)s.queryset, or override "
-				"%(cls)s.get_queryset()." % {
-				    'cls': self.__class__.__name__
-				}
-			)
-		ordering = self.get_ordering()
-		if ordering:
-			if isinstance(ordering, six.string_types):
-				ordering = (ordering,)
-			queryset = queryset.order_by(*ordering)
-
-		print 'get_queryset() returns: %s' % queryset
-
-		return queryset
-
-	def get_context_data(self, request, category):
-		
-		page_size = 4
+	def get_context_data(self):
 
 		print "listings()"
-		print "category = %s" % category
+		print "category = %s" % self.kwargs['category']
 
 		post_message = '5. Post'
 		back_message = '6. Back'
 		search_message = '7. Search'
 		next_message = '8. Next'
-		# no_active_listings_message = 'No active listings in %s.' % self.kwargs.category
-
-		# displayed_items=[]
-
-		# queryset = Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')
 
 		self.request.session["active_urls"].clear()
 
-
-
-
 		for counter, listing in enumerate((self.object_list), start=1):
-			self.request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
-		#	displayed_items.append('%s' % (listing))
+			self.request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':self.kwargs['category'], 'listing_id':listing.pk})
 
+		self.request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':self.kwargs['category']})
+		self.request.session['active_urls'][6] = reverse('topmenu:menu_2')
+		self.request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':self.kwargs['category']})
 
-		request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
-		request.session['active_urls'][6] = reverse('topmenu:menu_2')
-		request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':category})
-
-		# displayed_items.append(post_message)
-		# displayed_items.append(back_message)
-
-		context = {'self.object_list':self.object_list}
-
+		context = super(Listings, self).get_context_data()
+		print context
 		return context
-		
-		#print context
-		#return super(ListView, self).get_context_data(**context)
 
-
-
-
-
-"""
-
-@csrf_exempt
-def listings(request, category, default_lower_bound=0, default_upper_bound=4):
-
-	print "listings()"
-	print "category = %s" % category
-
-	post_message = '5. Post'
-	back_message = '6. Back'
-	search_message = '7. Search'
-	next_message = '8. Next'
-	no_active_listings_message = 'No active listings in %s.' % category
-
-	displayed_items=[]
-
-	request.session["active_urls"].clear()
-
-	for counter, listing in enumerate((Listing.objects.filter(category=category, is_active=True).order_by('-pub_date')[:4]), start=1):
-
-		request.session["active_urls"][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
-		displayed_items.append("%s. %s" % (counter, listing.header))
-
-	request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':category})
-	request.session['active_urls'][6] = reverse('topmenu:menu_2')
-	request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':category})
-
-	displayed_items.append(post_message)
-	displayed_items.append(back_message)
-	
-
-
-	if len(displayed_items) == 0:
-		displayed_items.append(no_active_listings_message)
-
-	elif default_upper_bound < len(displayed_items):
-
-		displayed_items.append(next_message)
-
-		default_lower_bound = default_lower_bound + 4
-		default_upper_bound = default_upper_bound + 4
-
-		request.session['active_urls'][8] = reverse('topmenu:listings', 
-			kwargs={'default_lower_bound':default_lower_bound, 'default_upper_bound':default_upper_bound})
-	else:
-		pass
-	# debug code/
-	print "displayed_items = "+str(displayed_items)
-	print 'ACTIVE URLS = '+str(request.session['active_urls'])
-	# /debug code
-
-	displayed_items = "\n".join(displayed_items)
-
-	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
-	return HttpResponse(status=200)
-"""
 
 @csrf_exempt
 def listing_detail(request, category, listing_id, default_lower_bound=None, default_upper_bound=None, from_dashboard=False):
@@ -400,7 +286,7 @@ def post_description_request(request, category):
 
 	else:
 
-		request.session["new_post_subject"] = request.session["default_data"]
+		request.session["new_post_subject"] = request.session["default_data"].strip()
 		request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
 			kwargs={'category':category})
 
@@ -426,7 +312,7 @@ def post_review(request, category):
 		return HttpResponse(status=200)
 
 	else:
-		request.session['new_post_description'] = request.session['default_data']
+		request.session['new_post_description'] = request.session['default_data'].strip()
 		request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
 		
 		post_message_3 = "Please review your listing."
