@@ -174,7 +174,7 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 
 	template_name = 'listings.txt'
 
-	paginate_by = 2
+	paginate_by = 4
 
 	ordering = '-pub_date'
 

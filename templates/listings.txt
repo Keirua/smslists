@@ -1,2 +1,4 @@
-{% for listing in page_obj.object_list %}{{listing.header}}
+{% load testy from link_handling %}
+{% testy %}
+{% for listing in page_obj.object_list %}{{forloop.counter}}. { {{listing.header}}
 {% endfor %}
