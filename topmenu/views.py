@@ -199,8 +199,8 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		search_message = '7. Search'
 		next_message = '8. Next'
 
-		self.request.session["active_urls"].clear()
-		print 'active_urls cleared!!!'
+		# self.request.session["active_urls"].clear()
+		# print 'active_urls cleared!!!'
 
 		#for counter, listing in enumerate((self.object_list), start=1):
 		#	self.request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':self.kwargs['category'], 'listing_id':listing.pk})
@@ -209,14 +209,14 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		# self.request.session['active_urls'][6] = reverse('topmenu:menu_2')
 		# self.request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':self.kwargs['category']})
 
-		listings = {}
-		for listing in self.object_list:
-			{'listing_id':listing.pk}
+		# listings = {}
+		# for listing in self.object_list:
+		# 	{'listing_id':listing.pk}
 
 		context = super(Listings, self).get_context_data()
 		print context
-		context['category'] = self.kwargs['category']
-		context['listing'] = {'listing_id':listing.pk}
+		# context['category'] = self.kwargs['category']
+		#context['listing'] = {'listing_id':listing.pk}
 		return context
 
 

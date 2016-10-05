@@ -1,6 +1,47 @@
 from django import template
+from django.template.defaulttags import url, URLNode
 
 register = template.Library()
+
+class ActiveUrlsBuilderNode(template.Node):
+	def __init__(self, url_node):
+		self.url_node = url_node
+
+	def render(self, context):
+		url = self.url_node.render(context)
+		request = context['request']
+		
+		for key in range(10):
+			if key not in request.session['active_urls']:
+				key = url
+
+		request.session['active_urls'][0] = url
+
+
+	key = request.session.get('next_template_key', '1')
+
+	request.session['active_urls'][key] = reverse(*args, kwargs=kwargs)
+	request.session['next_template_key'] = str(int(key)+1)
+
+	return key
+
+
+		return '1'
+
+@register.tag
+def active_urls_builder(parser, token):
+	url_node = url(parser, token)
+
+	return ActiveUrlsBuilderNode(url_node)
+
+
+
+
+
+
+
+
+
 
 class ActiveUrlsBuilderNode(template.Node):
 	def __init__(self, date_to_be_formatted, format_string):
@@ -23,6 +64,11 @@ def active_urls_builder(request, *args, **kwargs):
 	request.session['next_template_key'] = str(int(key)+1)
 
 	return key
+
+@register.tag
+def active_urls_builder(parser, token):
+	url_node = url(parser, token)
+
 
 @register.tag
 def custom_compilation(parser, token):
