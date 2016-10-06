@@ -1,0 +1,3 @@
+LISTING DETAIL TEST
+
+{{ listing.detail }}

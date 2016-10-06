@@ -209,9 +209,6 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		# self.request.session['active_urls'][6] = reverse('topmenu:menu_2')
 		# self.request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':self.kwargs['category']})
 
-		
-		
-
 		context = super(Listings, self).get_context_data()
 		context['category'] = self.kwargs['category']
 		for listing in self.object_list:
@@ -222,15 +219,26 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		#context['listing'] = {'listing_id':listing.pk}
 		return context
 
+class ListingDetail(CsrfExemptMixin, TwilioResponseMixin, DetailView):
 
+	template_name = 'listingdetail.txt'
+	
+	model = listing
+
+	pk_url_kwarg = 'listing_id'
+
+	def get_context_data(self, *args, **kwargs):
+
+		context = super(ListingDetail, self).get_context_data(*args, **kwargs)
+		context['detail'] = listing.detail
+		return context
+
+
+"""
 @csrf_exempt
 def listing_detail(request, category, listing_id, default_lower_bound=None, default_upper_bound=None, from_dashboard=False):
 	print "listing_detail"
-	"""
-	2. Using pk in link, call db and pull full
-	entry. Send SMS and map possible corresponding possible link responses.
-	Update session.
-	"""
+
 	displayed_items = []
 	delete_message = '7. Delete listing.'
 	back_message = '6. Back'
@@ -257,6 +265,7 @@ def listing_detail(request, category, listing_id, default_lower_bound=None, defa
 
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
 	return HttpResponse(status=200)
+"""
 
 @csrf_exempt
 def post_subject_request(request, category):
