@@ -209,11 +209,14 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		# self.request.session['active_urls'][6] = reverse('topmenu:menu_2')
 		# self.request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':self.kwargs['category']})
 
-		# listings = {}
-		# for listing in self.object_list:
-		# 	{'listing_id':listing.pk}
+		
+		
 
 		context = super(Listings, self).get_context_data()
+		context['category'] = self.kwargs['category']
+		for listing in self.object_list:
+		  	context['listing_id'] = listing.pk
+		# context['listing_id'] = listings[]
 		print context
 		# context['category'] = self.kwargs['category']
 		#context['listing'] = {'listing_id':listing.pk}

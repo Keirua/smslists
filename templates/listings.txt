@@ -1,4 +1,4 @@
 {% load active_urls_builder from link_handling %}
-{% active_urls_builder 'topmenu:listing_detail' category=category listing_id=listing.pk %}
+{% active_urls_builder 'topmenu:listing_detail' category=category listing_id=listing_id %}
 {% for listing in page_obj.object_list %}{{forloop.counter}}. {{listing.header}}
 {% endfor %}

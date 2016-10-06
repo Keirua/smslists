@@ -28,7 +28,7 @@ class Listing(models.Model):
 	is_active = models.BooleanField(default=True)
 
 	def __str__(self):
-		return "%s, %s" % (self.header, self.detail)
+		return "%s, %s, %s" % (self.header, self.detail, self.pk)
 	def was_published_recently(self):
 		return self.pub_date >= timezone.now() - datetime.timedelta(days=1)
 

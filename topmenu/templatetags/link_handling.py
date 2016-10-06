@@ -8,25 +8,26 @@ class ActiveUrlsBuilderNode(template.Node):
 		self.url_node = url_node
 
 	def render(self, context):
+		print 'ActiveUrlsBuilderNode context = %s' % context
+		
 		url = self.url_node.render(context)
 		request = context['request']
-		
-		for key in range(10):
-			if key not in request.session['active_urls']:
-				key = url
-
-		request.session['active_urls'][0] = url
+		print 'url = %s' % url
+		for key in range(1, 10):
+			if key not in sorted(request.session['active_urls']):
+				request.session['active_urls'][str(key)] = key
 
 
-	key = request.session.get('next_template_key', '1')
-
-	request.session['active_urls'][key] = reverse(*args, kwargs=kwargs)
-	request.session['next_template_key'] = str(int(key)+1)
-
-	return key
+	# request.session['active_urls'][0] = url
 
 
-		return '1'
+	# key = request.session.get('next_template_key', '1')
+
+	# request.session['active_urls'][key] = reverse(*args, kwargs=kwargs)
+	# request.session['next_template_key'] = str(int(key)+1)
+
+		return ''
+
 
 @register.tag
 def active_urls_builder(parser, token):
@@ -42,7 +43,7 @@ def active_urls_builder(parser, token):
 
 
 
-
+"""
 class ActiveUrlsBuilderNode(template.Node):
 	def __init__(self, date_to_be_formatted, format_string):
 	    self.category = template.Variable(category)
@@ -83,3 +84,4 @@ def custom_compilation(parser, token):
 			"%r tag's argument should be in quotes" % tag_name
 			)
 	return ActiveURlsBuilderNode(category, listing_id)
+""" 
