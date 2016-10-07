@@ -10,27 +10,22 @@ class ActiveUrlsBuilderNode(template.Node):
 	def render(self, context):
 		# goal: this method automatically builds links for any template
 		print 'ActiveUrlsBuilderNode context = %s' % context
-		
-
 
 		url = self.url_node.render(context)
 		request = context['request']
 		print 'url = %s' % url
 		for key in range(1, 10):
-			if key not in sorted(request.session['active_urls']):
-				request.session['active_urls'][str(key)] = key
+			if key not in request.session['active_urls']:
+				key = max(request.session['active_urls'] or [0])+1
 
-
+			request.session['active_urls'][key] = url
+				
 	# request.session['active_urls'][0] = url
-
-
 	# key = request.session.get('next_template_key', '1')
-
 	# request.session['active_urls'][key] = reverse(*args, kwargs=kwargs)
 	# request.session['next_template_key'] = str(int(key)+1)
 
 		return ''
-
 
 @register.tag
 def active_urls_builder(parser, token):
