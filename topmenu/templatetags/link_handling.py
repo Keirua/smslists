@@ -14,18 +14,17 @@ class ActiveUrlsBuilderNode(template.Node):
 		url = self.url_node.render(context)
 		request = context['request']
 		print 'url = %s' % url
-		for key in range(1, 10):
-			if key not in request.session['active_urls']:
-				key = max(request.session['active_urls'] or [0])+1
 
-			request.session['active_urls'][key] = url
+		key = max(request.session['active_urls'].keys()[:5] or [0])+1
+		print 'active urls = %s' % request.session['active_urls']
+		request.session['active_urls'][key] = url
 				
 	# request.session['active_urls'][0] = url
 	# key = request.session.get('next_template_key', '1')
 	# request.session['active_urls'][key] = reverse(*args, kwargs=kwargs)
 	# request.session['next_template_key'] = str(int(key)+1)
 
-		return ''
+		return str(key)
 
 @register.tag
 def active_urls_builder(parser, token):

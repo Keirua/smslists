@@ -112,6 +112,12 @@ def session_flush(request):
 
 	return HttpResponse(status=200)
 
+class PostGetMixin(object):
+	"Call get method from Post request."
+	def post(self, request, *args, **kwargs):
+		self.request = request
+		return self.get(request, *args, **kwargs)
+
 class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 	
 	template_name = 'mainmenu.txt'
@@ -199,16 +205,6 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		search_message = '7. Search'
 		next_message = '8. Next'
 
-		# self.request.session["active_urls"].clear()
-		# print 'active_urls cleared!!!'
-
-		#for counter, listing in enumerate((self.object_list), start=1):
-		#	self.request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':self.kwargs['category'], 'listing_id':listing.pk})
-
-		# self.request.session['active_urls'][5] = reverse('topmenu:post_subject_request', kwargs={'category':self.kwargs['category']})
-		# self.request.session['active_urls'][6] = reverse('topmenu:menu_2')
-		# self.request.session['active_urls'][7] = reverse('topmenu:search_request', kwargs={'category':self.kwargs['category']})
-
 		context = super(Listings, self).get_context_data()
 		context['category'] = self.kwargs['category']
 		for listing in self.object_list:
@@ -219,53 +215,13 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		#context['listing'] = {'listing_id':listing.pk}
 		return context
 
-class ListingDetail(CsrfExemptMixin, TwilioResponseMixin, DetailView):
+class ListingDetail(CsrfExemptMixin, TwilioResponseMixin, PostGetMixin, DetailView):
 
 	template_name = 'listingdetail.txt'
 	
 	model = Listing
 
 	pk_url_kwarg = 'listing_id'
-
-	def get_context_data(self, *args, **kwargs):
-
-		context = super(ListingDetail, self).get_context_data(*args, **kwargs)
-		context['detail'] = listing.detail
-		return context
-
-
-"""
-@csrf_exempt
-def listing_detail(request, category, listing_id, default_lower_bound=None, default_upper_bound=None, from_dashboard=False):
-	print "listing_detail"
-
-	displayed_items = []
-	delete_message = '7. Delete listing.'
-	back_message = '6. Back'
-
-	request.session['active_urls'].clear()
-	request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
-
-	listing = Listing.objects.get(pk=listing_id)
-
-	displayed_items.append(listing.detail)
-	displayed_items.append(back_message)
-
-	if from_dashboard == True:
-		request.session['active_urls'][7] = Listing.is_active(False)
-		request.session['active_urls'][6] = reverse('topmenu:user_dashboard', 
-			kwargs={'default_lower_bound':default_lower_bound, 
-			'default_upper_bound':default_upper_bound})
-		displayed_items.append(delete_message)
-	else:
-		# act normally because not from_dashboard=True
-		pass
-
-	displayed_items = '\n'.join(displayed_items)
-
-	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
-	return HttpResponse(status=200)
-"""
 
 @csrf_exempt
 def post_subject_request(request, category):
