@@ -9,7 +9,7 @@ from datetime import datetime
 from .languages import *
 import plivo, time, twilio
 from django.db.models import Q
-from django.views.generic import View, ListView, TemplateView
+from django.views.generic import View, ListView, TemplateView, DetailView
 from django.views.generic.base import ContextMixin, TemplateResponseMixin
 from twilio.rest import TwilioRestClient
 from braces.views import CsrfExemptMixin
@@ -223,7 +223,7 @@ class ListingDetail(CsrfExemptMixin, TwilioResponseMixin, DetailView):
 
 	template_name = 'listingdetail.txt'
 	
-	model = listing
+	model = Listing
 
 	pk_url_kwarg = 'listing_id'
 
@@ -524,15 +524,13 @@ def search_results(request, category, default_lower_bound=0, default_upper_bound
 def voted_listings(request, category, default_lower_bound=None, default_upper_bound=4):
 	displayed_items = []
 	in_development_message = '%s listings is still in development. Check back soon.' % (category.title())
-	back_message = 'Press'
 
 	displayed_items.append(in_development_message)
-	displayed_items.append(back_message)
 
 	time.sleep(2)
-
 
 	displayed_items = '\n'.join(displayed_items)
 
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
+	MainMenu.as_view()(request)
 	return HttpResponse(status=200)
