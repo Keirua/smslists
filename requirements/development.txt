@@ -25,3 +25,4 @@ mock==2.0.0
 nose-parameterized==0.5.0
 yanc
 coverage==4.2
+ansible==2.0.1.0

@@ -17,9 +17,9 @@ EMAIL_PORT = '25'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'smscl',
-        'USER': 'smscl',
-        'PASSWORD': '',
+        'NAME': 'smslists',
+        'USER': 'smslists',
+        'PASSWORD': 'LVAGVdAl1t',
         'HOST': 'localhost',
         'PORT': '',
     }
