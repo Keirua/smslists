@@ -8,7 +8,6 @@ class ActiveUrlsBuilderNode(template.Node):
 		self.url_node = url_node
 
 	def render(self, context):
-		# goal: this method automatically builds links for any template
 		print 'ActiveUrlsBuilderNode context = %s' % context
 
 		url = self.url_node.render(context)
