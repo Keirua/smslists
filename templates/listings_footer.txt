@@ -2,14 +2,12 @@
 6. Search {# { reverse('topmenu:search_request' category=category) } #}
 {% if is_paginated %}
 {% if page_obj.has_next %}
-7. Next 
-{% active_urls_builder 'listings' category=category ? page= page.next_page_number }} %}
+{% active_urls_builder 7 'listings' category=category ? page= page.next_page_number }} %}
 {% endif %}
 {% if page_obj.has_previous %}
-8. Previous 
-{% active_urls_builder 'listings' category=category ? page= page.previous_page_number }} %}
+{% active_urls_builder 8 'listings' category=category ? page= page.previous_page_number }} %}
 {% endif %}
 {% endif %}
-9. Post {% active_urls_builder 'topmenu:post_subject_request' category=category %}
-0. Main Menu {% active_urls_builder 'topmenu:menu_2' %}
+9. Post {% active_urls_builder 9 'topmenu:post_subject_request' category=category %}
+0. Main Menu {% active_urls_builder 0 'topmenu:menu_2' %}
 LISTINGS_FOOTER PASSED
