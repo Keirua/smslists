@@ -208,9 +208,9 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		next_message = '8. Next'
 
 		context = super(Listings, self).get_context_data()
-		context['category'] = self.kwargs['category']
-		for listing in self.object_list:
-		  	context['listing_id'] = listing.pk
+		# context['category'] = self.kwargs['category']
+		# for listing in self.object_list:
+		#   	context['listing_id'] = listing.pk
 		# context['listing_id'] = listings[]
 		print context
 		# context['category'] = self.kwargs['category']
@@ -353,8 +353,8 @@ def invalid_response(request):
 	if 'last_message' in request.session:
 		if str(request.session['last_message']) == 'Not a valid command. Returning to main menu.':
 			print 'last_message=last_message'
-			MainMenu.as_view()(request)
-			return HttpResponse(status=200)
+			
+			return MainMenu.as_view()(request)
 		else:	
 			print "last_message is: %s" % (request.session['last_message'])
 			send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
@@ -362,9 +362,8 @@ def invalid_response(request):
 
 	else:
 		send_message(request, PLIVO_NUMBER, request.session['phone_num'], error_message)
-		# MainMenu.as_view()(request)
-		reverse('topmenu:menu_2')
-		return HttpResponse(status=200)
+		
+		return MainMenu.as_view()(request)
 		
 		
 
@@ -450,9 +449,20 @@ def search_request(request, category):
 	request.session['active_urls']['default_url'] = reverse('topmenu:search_results', kwargs={'category':category})
 	return HttpResponse(status=200)
 """
-	
+class SearchResults(CsrfExemptMixin, TwilioResponseMixin, ListView):
+
+	template_name = 'listings.txt'
+
+	paginate_by = 4
+
+	def get_queryset(self, *args, **kwargs):
+
+		return Listing.objects.filter(Q(category__exact=category), Q(header__icontains=request.session['default_data'])
+		| Q(detail__icontains=request.session['default_data'])).order_by('-pub_date')
+
+"""
 @csrf_exempt
-def search_results(request, category, default_lower_bound=0, default_upper_bound=4):
+def search_results(request, category):
 
 	displayed_items = []
 	results_raw = []
@@ -485,6 +495,7 @@ def search_results(request, category, default_lower_bound=0, default_upper_bound
 
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
 	return HttpResponse(status=200)
+"""
 
 @csrf_exempt
 def voted_listings(request, category, default_lower_bound=None, default_upper_bound=4):
@@ -498,5 +509,5 @@ def voted_listings(request, category, default_lower_bound=None, default_upper_bo
 	displayed_items = '\n'.join(displayed_items)
 
 	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
-	MainMenu.as_view()(request)
-	return HttpResponse(status=200)
+	
+	return MainMenu.as_view()(request)

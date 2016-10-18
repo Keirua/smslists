@@ -30,3 +30,4 @@ def active_urls_builder(parser, token):
 	url_node = url(parser, token)
 
 	return ActiveUrlsBuilderNode(url_node)
+
