@@ -25,7 +25,9 @@ from django.utils.translation import ugettext as _
 # TWILIOAPI
 ACCOUNT_SID = "AC0b5cdee16cd76023dd0784ca80fdbaa8" 
 AUTH_TOKEN = "336894260c0040444134344d86886a3e"
-PLIVO_NUMBER = "17472221816"
+PLIVO_NUMBER ="12402046429"
+
+PRODUCTION_PLIVO_NUMBER = "17472221816"
  
 
 
@@ -348,14 +350,22 @@ def invalid_response(request):
 
 	error_message = 'Not a valid command. Returning to main menu.'
 
-	if 'last_message' in request.session: 
-
-		send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
-		return HttpResponse(status=200)
+	if 'last_message' in request.session:
+		if str(request.session['last_message']) == 'Not a valid command. Returning to main menu.':
+			print 'last_message=last_message'
+			MainMenu.as_view()(request)
+			return HttpResponse(status=200)
+		else:	
+			print "last_message is: %s" % (request.session['last_message'])
+			send_message(request, PLIVO_NUMBER, request.session['phone_num'], request.session['last_message'])
+			return HttpResponse(status=200)
 
 	else:
 		send_message(request, PLIVO_NUMBER, request.session['phone_num'], error_message)
-		return MainMenu.as_view()(request)
+		# MainMenu.as_view()(request)
+		reverse('topmenu:menu_2')
+		return HttpResponse(status=200)
+		
 		
 
 class UserDashboard(ListView):
