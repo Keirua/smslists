@@ -1,13 +1,8 @@
 {% load active_urls_builder from link_handling %}
-6. Search {% active_urls_builder 6 'topmenu:search_request' category=category %}
-{% if is_paginated %}
-{% if page_obj.has_next %}
-{% active_urls_builder 7 'listings' category=category ? page= page.next_page_number }} %}
-{% endif %}
+{% active_urls_builder 6 'topmenu:search_request' category=category %}. Search
+{% if is_paginated %}{% if page_obj.has_next %}
+{% active_urls_builder 7 'topmenu:listings' category=category ? page=page_obj.next_page_number %}. Next{% endif %}
 {% if page_obj.has_previous %}
-{% active_urls_builder 8 'listings' category=category ? page= page.previous_page_number }} %}
-{% endif %}
-{% endif %}
-9. Post {% active_urls_builder 9 'topmenu:post_subject_request' category=category %}
-0. Main Menu {% active_urls_builder 0 'topmenu:menu_2' %}
-LISTINGS_FOOTER PASSED
+{% active_urls_builder 8 'topmenu:listings' category=category ? page=page_obj.previous_page_number %}. Previous{% endif %}{% endif %}
+{% active_urls_builder 9 'topmenu:post_subject_request' category=category %}. Post
+{% active_urls_builder 0 'topmenu:menu_2' %}. Main Menu

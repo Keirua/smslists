@@ -59,8 +59,12 @@ class TwilioResponseMixin(object):
 				response.render()
 			content = response.content
 		
-		elif isinstance(response, str):
+		elif isinstance(response, basestring):
 			content = response
+
+		else:
+			print type(response)
+			content = ''
 
 		twilio_response = twilio.twiml.Response()
 		twilio_response.message(msg=content, to=request.session['phone_num'], 
@@ -68,6 +72,8 @@ class TwilioResponseMixin(object):
 		response = HttpResponse(content=str(twilio_response))
 
 		return response
+
+
 
 #PLIVOAPI:
 """
@@ -135,7 +141,7 @@ class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 			"4": reverse('topmenu:listings', kwargs={"category": "announcements"}),
 			"5": reverse('topmenu:voted_listings', kwargs={'category': 'commentary'}),
 			"6": reverse('topmenu:voted_listings', kwargs={'category': 'emergency'}),
-			"0": reverse('topmenu:user_dashboard'),
+			# "0": reverse('topmenu:user_dashboard'),
 			# special development session flush
 			"000": reverse('topmenu:session_flush'),
 		}	
@@ -208,11 +214,11 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 		next_message = '8. Next'
 
 		context = super(Listings, self).get_context_data()
-		# context['category'] = self.kwargs['category']
+		context['category'] = self.kwargs['category']
 		# for listing in self.object_list:
 		#   	context['listing_id'] = listing.pk
 		# context['listing_id'] = listings[]
-		print context
+		
 		# context['category'] = self.kwargs['category']
 		#context['listing'] = {'listing_id':listing.pk}
 		return context
@@ -320,8 +326,7 @@ def post_commit(request, category):
 			detail=request.session['new_post_description'], category=category,
 			owner=User.objects.get(phone_num=request.session['phone_num']))
 		send_message(request, PLIVO_NUMBER, request.session['phone_num'], confirmation_message)
-		menu_2(request)
-		return HttpResponse(status=200)
+		return MainMenu.as_view()(request)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
 	elif request.session['default_data'] == '9': # changed from request.POST
@@ -332,8 +337,7 @@ def post_commit(request, category):
 		del request.session['new_post_subject']
 		del request.session['new_post_description']
 
-		menu_2(request)
-		return HttpResponse(status=200)
+		return MainMenu.as_view()(request)
 	
 	else:
 		send_message(request, PLIVO_NUMBER, request.session["phone_num"], invalid_input)
@@ -425,7 +429,7 @@ def user_dashboard(request, default_lower_bound=0, default_upper_bound=4):
 	send_message(request, PLIVO_NUMBER, request.session["phone_num"], displayed_items)
 	return HttpResponse(status=200)
 
-class SearchRequest(TwilioResponseMixin, View):
+class SearchRequest(CsrfExemptMixin, TwilioResponseMixin, View):
 
 	def post(self, request, category):
 		search_request_message = '%s search term? 6. Back' % category

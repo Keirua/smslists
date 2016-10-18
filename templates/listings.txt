@@ -1,6 +1,3 @@
 {% load active_urls_builder from link_handling %}
 {% for listing in page_obj.object_list %}{% active_urls_builder 'topmenu:listing_detail' category=listing.category listing_id=listing.pk %}. {{listing.header}}
-{% endfor %}
-{% include 'listings_footer.txt' %}
-
-LISTING TEMPLATE PASSED
+{% endfor %}{% include 'listings_footer.txt' %}
