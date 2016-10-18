@@ -2,7 +2,7 @@ SMS Lists (beta) 747-222-1816
 =============================
 
 SMS Lists is an SMS-based classifieds system designed for communities with
-limited internet access. Listings are limited to 140 characters. 
+limited internet access. Listings are capped at 140 characters. 
 To learn more, visit WorldDev.io.
 
 Overview
@@ -30,13 +30,13 @@ The beta includes six listing categories:
 5. Commentary
 6. Emergency
 
-While present, Commentary and Emergency listings are currently in development
-and will be activated in the future.
-
 Listings are composed of two parts – header and listing detail. The header
 component is displayed when browsing listings and thus is limited to 40
-characters. The detail component is the full listing and is limited to 140
+characters. The detail component is the full listing and is restricted to 140
 characters.
+
+While present, Commentary and Emergency listings are currently in development
+and will be activated in the future.
 
 Acknowledgements
 ----------------
