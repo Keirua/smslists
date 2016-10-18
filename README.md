@@ -33,7 +33,7 @@ The beta includes six listing categories:
 While present, Commentary and Emergency listings are currently in development
 and will be activated in the future.
 
-Listings are composed of two parts – header and listing detail. The header is
+Listings are composed of two parts – header and listing detail. The header
 component is displayed when browsing listings and thus is limited to 40
 characters. The detail component is the full listing and is limited to 140
 characters.
@@ -54,7 +54,7 @@ Training Institute for Social Development. Their guidance and vital
 support were critical to the Ugandan research that led to SMS Lists.
 
 Research in Haiti was facilitated by the great John Presime. John's efforts as
-research partner, logistics coordinator and Kreole translator were critical to
+research partner, logistics coordinator and Kreole translator were crucial to
 the development of SMS Lists.
 
 Further acknowledgements go to Pierre Noel and Samantha Hackney at the Haiti
