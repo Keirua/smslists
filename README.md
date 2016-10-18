@@ -58,9 +58,13 @@ research partner, logistics coordinator and Kreole translator were crucial to
 the development of SMS Lists.
 
 Further acknowledgements go to Pierre Noel and Samantha Hackney at the Haiti
-Development Institute. Despite an extreme workload, Pierre and Samantha
-made time to share a great deal of knowledge about the Haitian refugee crisis.
+Development Institute. Despite a stacked workload, Pierre and Samantha made 
+time to share a great deal of knowledge about the Haitian refugee crisis.
 
 Finally, I need to thank the many translators and interpreters who, as both
 professionals and themselves refugees, provided indispensable value and 
-insight.
+insights. 
+
+These individuals, of whom there are tens of millions worldwide, are paragons
+of perseverance, survival and success against the life's most challenging odds.
+These are who we must code for.
