@@ -66,5 +66,5 @@ professionals and themselves refugees, provided indispensable value and
 insights. 
 
 These individuals, of whom there are tens of millions worldwide, are paragons
-of perseverance, survival and success against the life's most challenging odds.
+of perseverance, survival and success against life's most challenging odds.
 These are who we must code for.
