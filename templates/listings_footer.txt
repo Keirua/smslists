@@ -1,0 +1,19 @@
+{% load active_urls_builder from link_handling %}
+
+6. Search {{ reverse('topmenu:search_request' category=category) }}
+
+{% if is_paginated %}
+
+{% if page_obj.has_next %}
+7. Next {{ page_obj.next_page_number}}
+{% endif %}
+
+{% if page_obj.has_previous %}
+8. Previous {{ page_obj.previous_page_number }}
+{% endif %}
+
+9. Post {{ reverse('topmenu:post_subject_request' category=category)}}
+
+0. Main Menu {{ reverse('topmenu:menu_2') }}
+
+LISTINGS_FOOTER PASSED
