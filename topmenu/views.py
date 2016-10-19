@@ -20,8 +20,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.paginator import InvalidPage, Paginator
 from django.utils import six
 from django.utils.translation import ugettext as _
-
- 
+from django.conf import settings 
 # TWILIOAPI
 ACCOUNT_SID = "AC0b5cdee16cd76023dd0784ca80fdbaa8" 
 AUTH_TOKEN = "336894260c0040444134344d86886a3e"
@@ -35,10 +34,7 @@ def send_message(request, source, destination, menu_text):
 	    from_=source, 
 	    body=menu_text,  
 	)
-
 	request.session['last_message'] = menu_text
-
-
 
 class TwilioResponseMixin(object):
 	def dispatch(self, request, *args, **kwargs):
@@ -68,16 +64,6 @@ class TwilioResponseMixin(object):
 
 		return response
 
-
-
-#PLIVOAPI:
-"""
-PLIVO_NUMBER = "18058643381" # in the future will call deployment.txts
-auth_id = "MANGVIYZY0ZMFIMTIWOG"
-auth_token = "Yzc3OTgzZmU4MGIyNDI4ODgzMWE1MWExOWYxZTcx"
-"""
-
-###############
 def index(request):
 	print "index"
 	latest_listing_list = Listing.objects.order_by('-pub_date')[:6]
@@ -88,22 +74,6 @@ def detail(request, detail_id):
 	print "detail"
 	detail_display = get_object_or_404(Listing, pk = detail_id)
 	return render(request, 'topmenu/detail.html', {'apples': detail_display})
-###############
-#PLIVOAPI
-""" 
-def send_message(request, source, destination, menu_text):
-	p = plivo.RestAPI(auth_id, auth_token)
-	params = {
-    'src': source,  # Sender's phone number with country code
-    'dst': destination,  # Receiver's phone Number with country code
-    'text' : menu_text, # Your SMS Text Message - English
-    'url' : "", # The URL to which with the status of the message is sent
-    'method' : 'POST' # The method used to call the url
-	}
-	response = p.send_message(params)
-	request.session['last_message'] = menu_text
-	return response
-"""
 
 @csrf_exempt
 def session_flush(request):
@@ -432,8 +402,6 @@ class SearchResults(CsrfExemptMixin, TwilioResponseMixin, PostGetMixin, ListView
 	template_name = 'listings.txt'
 
 	paginate_by = 4
-
-
 
 	def get_queryset(self, *args, **kwargs):
 		return Listing.objects.filter(Q(category__exact=self.kwargs['category']), Q(header__icontains=self.request.session['default_data'])
