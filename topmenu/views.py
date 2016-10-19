@@ -184,7 +184,7 @@ class MainMenu(CsrfExemptMixin, TwilioResponseMixin, TemplateView):
 			return self.get(request, *args, **kwargs)
 
 
-class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
+class Listings(CsrfExemptMixin, TwilioResponseMixin, PostGetMixin, ListView):
 
 	template_name = 'listings.txt'
 
@@ -194,10 +194,7 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 
 	model = Listing
 
-	def post(self, request, *args, **kwargs):
-		self.request = request
-		print 'def post KWARGS = %s' % kwargs
-		return self.get(request, *args, **kwargs)
+	page_kwarg = 'page'
 
 	def get_queryset(self):
 
@@ -215,12 +212,7 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, ListView):
 
 		context = super(Listings, self).get_context_data()
 		context['category'] = self.kwargs['category']
-		# for listing in self.object_list:
-		#   	context['listing_id'] = listing.pk
-		# context['listing_id'] = listings[]
-		
-		# context['category'] = self.kwargs['category']
-		#context['listing'] = {'listing_id':listing.pk}
+
 		return context
 
 class ListingDetail(CsrfExemptMixin, TwilioResponseMixin, PostGetMixin, DetailView):
@@ -439,70 +431,26 @@ class SearchRequest(CsrfExemptMixin, TwilioResponseMixin, View):
 		request.session['active_urls']['default_url'] = reverse('topmenu:search_results', kwargs={'category':category})
 		
 		return search_request_message
-"""
-@csrf_exempt
-def search_request(request, category):
-	
-	search_request_message = '%s search term? 6. Back' % category
 
-	request.session['active_urls'].clear()
-	request.session['active_urls'][6] = reverse('topmenu:listings', kwargs={'category':category})
-
-
-	send_message(request, PLIVO_NUMBER, request.session['phone_num'], search_request_message)
-	request.session['active_urls']['default_url'] = reverse('topmenu:search_results', kwargs={'category':category})
-	return HttpResponse(status=200)
-"""
-class SearchResults(CsrfExemptMixin, TwilioResponseMixin, ListView):
+class SearchResults(CsrfExemptMixin, TwilioResponseMixin, PostGetMixin, ListView):
 
 	template_name = 'listings.txt'
 
 	paginate_by = 4
 
+
+
 	def get_queryset(self, *args, **kwargs):
+		return Listing.objects.filter(Q(category__exact=self.kwargs['category']), Q(header__icontains=self.request.session['default_data'])
+		| Q(detail__icontains=self.request.session['default_data'])).order_by('-pub_date')
 
-		return Listing.objects.filter(Q(category__exact=category), Q(header__icontains=request.session['default_data'])
-		| Q(detail__icontains=request.session['default_data'])).order_by('-pub_date')
-
-"""
-@csrf_exempt
-def search_results(request, category):
-
-	displayed_items = []
-	results_raw = []
-	next_message = "5. Next"
-	back_message = "6. Back"
-
-	for counter, listing in enumerate((Listing.objects.filter(Q(category__exact=category), Q(header__icontains=request.session['default_data'])
-		| Q(detail__icontains=request.session['default_data'])).order_by('-pub_date')[default_lower_bound:default_upper_bound]), start=1):
-		
-		request.session['active_urls'][counter] = reverse('topmenu:listing_detail', kwargs={'category':category, 'listing_id':listing.pk})
-		displayed_items.append('%s. %s' % (counter, listing.header))
-
-	if default_upper_bound < len(displayed_items):
-
-		displayed_items.append(next_message)
-
-		default_lower_bound = default_lower_bound + 4
-		default_upper_bound = default_upper_bound + 4
-
-		request.session['active_urls'][5] = reverse('topmenu:user_dashboard', 
-			kwargs={'default_lower_bound':default_lower_bound, 'default_upper_bound':default_upper_bound})
-
-	else:
-	# do nothing because there are either no more pages of results to show
-	# or only one page total of results
-		pass
-
-	displayed_items.append(back_message)
-	displayed_items = "\n".join(displayed_items)
-
-	send_message(request, PLIVO_NUMBER, request.session['phone_num'], displayed_items)
-	return HttpResponse(status=200)
-"""
+	def get_context_data(self, *args, **kwargs):
+		context = super(SearchResults, self).get_context_data()
+		context['category'] = self.kwargs['category']
+		return context
 
 @csrf_exempt
-def voted_listings(request, category, default_lower_bound=None, default_upper_bound=4):
+def voted_listings(request, category):
 	displayed_items = []
 	in_development_message = '%s listings is still in development. Check back soon.' % (category.title())
 

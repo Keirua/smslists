@@ -28,11 +28,20 @@ class ActiveUrlsBuilderNode(template.Node):
 				pass
 			query_params.append('%s=%s' % (name, value))
 
-		url = self.url_node.render(context) + '' if not query_params else '?%s' % '&'.join(query_params)
+		url = self.url_node.render(context) +('' if not query_params else '?%s' % '&'.join(query_params))
 		request = context['request']
 		print 'url = %s' % url
 
-		key = self.link_id or str(int(max(request.session['active_urls'].keys()[:5] or [0]))+1)
+		# key = self.link_id or str(int(max(request.session['active_urls'].keys()[:5] or [0]))+1)
+		if self.link_id:
+			key = self.link_id
+		else:
+			for x in range(1, 9):
+				if str(x) not in request.session['active_urls']:
+					key = str(x)
+					break
+			
+
 		print 'active urls = %s' % request.session['active_urls']
 		request.session['active_urls'][key] = url
 
