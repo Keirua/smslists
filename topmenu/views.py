@@ -25,12 +25,7 @@ from django.utils.translation import ugettext as _
 # TWILIOAPI
 ACCOUNT_SID = "AC0b5cdee16cd76023dd0784ca80fdbaa8" 
 AUTH_TOKEN = "336894260c0040444134344d86886a3e"
-PLIVO_NUMBER ="12402046429"
-
-PRODUCTION_PLIVO_NUMBER = "17472221816"
- 
-
-
+PLIVO_NUMBER = settings.PLIVO_NUMBER
 
 def send_message(request, source, destination, menu_text):
 	client = TwilioRestClient(ACCOUNT_SID, AUTH_TOKEN) 

@@ -65,6 +65,8 @@ DEBUG_TOOLBAR_CONFIG = {
 #    'dsn': 'https://..../?verify_ssl=0',
 #}
 
+PLIVO_NUMBER ="12402046429"
+
 # TODO: FILL!
 ALLOWED_HOSTS = []
 
@@ -73,3 +75,5 @@ try:
 except ImportError:
     # local settings is not mandatory
     pass
+
+
