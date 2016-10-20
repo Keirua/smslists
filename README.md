@@ -49,8 +49,8 @@ partner, patient travel companion and outstanding friend. Additionally, Andy
 Rossback contributed the excellent design of both the WorldDev logo and the
 layout for WorldDev.io.
 
-I'd like to thank Jimmy Maguru and Alyosius Muwanga with the Nsamizi 
-Training Institute for Social Development. Their guidance and vital
+I'd like to thank Jimmy Maguru, Alyosius Muwanga and the staff at the
+Nsamizi Training Institute for Social Development. Their guidance and vital
 support were critical to the Ugandan research that led to SMS Lists.
 
 Research in Haiti was facilitated by the great John Presime. John's efforts as
@@ -58,7 +58,7 @@ research partner, logistics coordinator and Kreole translator were crucial to
 the development of SMS Lists.
 
 Further acknowledgements go to Pierre Noel and Samantha Hackney at the Haiti
-Development Institute. Despite a stacked workload, Pierre and Samantha made 
+Development Institute. Despite a busy workload, Pierre and Samantha made 
 time to share a great deal of knowledge about the Haitian refugee crisis.
 
 Finally, I need to thank the many translators and interpreters who, as both

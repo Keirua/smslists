@@ -1,3 +1,4 @@
+Welcome to SMS Lists!
 1. {{ current_language.for_sale }}
 2. {{ current_language.jobs }}
 3. {{ current_language.rides }}
