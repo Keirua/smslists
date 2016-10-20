@@ -2,9 +2,11 @@
 Development settings.
 """
 from .base import *
+import os
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+os.environ['WERKZEUG_DEBUG_PIN'] = 'off'
 
 # MIDDLEWARE_CLASSES += ( 'debug_toolbar.middleware.DebugToolbarMiddleware',)
 
