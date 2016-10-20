@@ -222,8 +222,8 @@ def post_description_request(request, category):
 		del request.session['default_data']
 
 		send_message(request, PLIVO_NUMBER, request.session["phone_num"], cancellation_message)
-		reverse('topmenu:menu_2')
-		return HttpResponse(status=200)
+		time.sleep(1)
+		return MainMenu.as_view()(request)
 
 	else:
 
@@ -232,22 +232,16 @@ def post_description_request(request, category):
 			request.session['new_post_subject'] = request.session['default_data'].strip()
 			request.session['active_urls']['default_url'] = reverse('topmenu:post_review', 
 				kwargs={'category':category})
-
 			send_message(request, PLIVO_NUMBER, request.session['phone_num'], post_message_2)
 			return HttpResponse(status=200)
 
-		elif len(request.session['new_post_subject']) > 0:
-			# handle user's descrip too long, resending descrip request
-			request.session['active_urls']['default_url'] = reverse('topmenu:post_review', 
-				kwargs={'category':category})
-			send_message(request, PLIVO_NUMBER, request.session['phone_num'], post_message_2)
-			return HttpResponse(status=200)
 		else:
 			# subject too long, restart posting sequence
 			send_message(request, PLIVO_NUMBER, request.session['phone_num'], subject_error_message)
 			del request.session['default_data']
 			time.sleep(1)
-			request.session['active_urls']['default_url'] = reverse('topmenu:post_subject_request')
+			request.session['active_urls']['default_url'] = reverse(
+				'topmenu:post_subject_request', kwargs={'category':category})
 			return HttpResponse(status=200)
 
 @csrf_exempt
@@ -258,8 +252,9 @@ def post_review(request, category):
 	("topmenu:post_commit").
 	"""
 	cancellation_message = "Listing cancelled. Returning to main menu."
-	description_error_message = """Description exceeded mac character limit.
+	description_error_message = """Description exceeded max character limit.
 		Please enter a listing description of 140 characters or less."""
+	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 
 	if request.session['default_data'].strip() == '9':
 		del request.session['active_urls']['default_url']
@@ -267,8 +262,8 @@ def post_review(request, category):
 		del request.session['new_post_subject']
 
 		send_message(request, PLIVO_NUMBER, request.session["phone_num"], cancellation_message)
-		reverse('topmenu:menu_2')
-		return HttpResponse(status=200)
+		time.sleep(1)
+		return MainMenu.as_view()(request)
 
 	else:
 		if len(request.session['default_data'].strip()) < 141:
@@ -290,11 +285,13 @@ def post_review(request, category):
 			send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_6)
 			return HttpResponse(status=200)
 		else:
-			# descrip too long
+			# descrip too long. send error, resend descrip request
 			send_message(request, PLIVO_NUMBER, request.session['phone_num'], description_error_message)
 			del request.session['default_data']
 			time.sleep(1)
-			request.session['active_urls']['default_url'] = reverse('topmenu:post_subject_request')
+			send_message(request, PLIVO_NUMBER, request.session['phone_num'], description_error_message)
+			request.session['active_urls']['default_url'] = reverse(
+				'topmenu:post_review', kwargs={'category':category})
 			return HttpResponse(status=200)
 
 @csrf_exempt
@@ -306,7 +303,7 @@ def post_commit(request, category):
 	invalid_input = "Input not recognized. Reply '1' to confirm posting or '9' to cancel."
 
 	print "request.session['default_data'] ="+request.session['default_data']
-	if request.session['default_data'] == '1': 
+	if request.session['default_data'].strip() == '1': 
 		Listing.objects.create(header=request.session['new_post_subject'], 
 			detail=request.session['new_post_description'], category=category,
 			owner=User.objects.get(phone_num=request.session['phone_num']))
@@ -314,7 +311,7 @@ def post_commit(request, category):
 		return MainMenu.as_view()(request)
 	
 	# can't parse message request in middleware, so menu_2 redirect here:
-	elif request.session['default_data'] == '9': # changed from request.POST
+	elif request.session['default_data'].strip() == '9': # changed from request.POST
 		send_message(request, PLIVO_NUMBER, request.session['phone_num'], cancellation_message)
 		
 		del request.session['active_urls']['default_url']
