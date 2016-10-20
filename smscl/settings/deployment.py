@@ -34,7 +34,7 @@ PLIVO_NUMBER = "17472221816"
 
 # This MUST be set to the domain names this instance is allowed to serve, otherwise
 #  all requests will result in HTTP/400
-#ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['api.worlddev.io']
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
