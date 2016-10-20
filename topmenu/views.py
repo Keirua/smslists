@@ -252,8 +252,7 @@ def post_review(request, category):
 	("topmenu:post_commit").
 	"""
 	cancellation_message = "Listing cancelled. Returning to main menu."
-	description_error_message = """Description exceeded max character limit.
-		Please enter a listing description of 140 characters or less."""
+	description_error_message = """Description exceeded max character limit. Please enter a listing description of 140 characters or less."""
 	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 
 	if request.session['default_data'].strip() == '9':
