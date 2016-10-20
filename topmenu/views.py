@@ -170,11 +170,6 @@ class Listings(CsrfExemptMixin, TwilioResponseMixin, PostGetMixin, ListView):
 		print "listings()"
 		print "category = %s" % self.kwargs['category']
 
-		post_message = '5. Post'
-		back_message = '6. Back'
-		search_message = '7. Search'
-		next_message = '8. Next'
-
 		context = super(Listings, self).get_context_data()
 		context['category'] = self.kwargs['category']
 
