@@ -5,7 +5,6 @@ from django.core.urlresolvers import reverse
 from .models import User
 import plivo
 
-# need to discuss
 def _load_and_keep_session_key(orig):
 	def wrapper(self):
 		session_key = self.session_key
@@ -35,7 +34,7 @@ def session_status_tracker(request):
 
 class SmsSessionMiddleware(middleware.SessionMiddleware):
 	def __init__(self):
-		super(SmsSessionMiddleware, self).__init__() # discuss purpose of super on __init__()
+		super(SmsSessionMiddleware, self).__init__()
 		self.SessionStore.load = _load_and_keep_session_key(self.SessionStore.load)
 
 	def process_request(self, request):
@@ -43,7 +42,7 @@ class SmsSessionMiddleware(middleware.SessionMiddleware):
 
 		session_key = request.POST.get('From', request.COOKIES.get(settings.SESSION_COOKIE_NAME))
 
-		request.session = self.SessionStore(session_key=session_key) # does SessionStore erase existing session w/ same session key?
+		request.session = self.SessionStore(session_key=session_key)
 		request.session["phone_num"] = session_key
 
 		request.session.set_expiry(300)

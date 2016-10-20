@@ -213,9 +213,10 @@ def post_description_request(request, category):
 
 	post_message_2 = "Listing description? (max 140 characters) Reply '9' to return to main menu."
 	cancellation_message = "Listing cancelled. Returning to main menu."
+	subject_error_message = "Subject exceeded max character limit. Please enter a listing subject of 40 chacters or less."
 
 
-	if request.session['default_data'] == '9':
+	if request.session['default_data'].strip() == '9':
 
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
@@ -226,12 +227,28 @@ def post_description_request(request, category):
 
 	else:
 
-		request.session["new_post_subject"] = request.session["default_data"].strip()
-		request.session["active_urls"]["default_url"] = reverse("topmenu:post_review", 
-			kwargs={'category':category})
+		if len(request.session['default_data'].strip()) < 41:
+			# subject proper length, moving through process
+			request.session['new_post_subject'] = request.session['default_data'].strip()
+			request.session['active_urls']['default_url'] = reverse('topmenu:post_review', 
+				kwargs={'category':category})
 
-		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_2)
-		return HttpResponse(status=200)
+			send_message(request, PLIVO_NUMBER, request.session['phone_num'], post_message_2)
+			return HttpResponse(status=200)
+
+		elif len(request.session['new_post_subject']) > 0:
+			# handle user's descrip too long, resending descrip request
+			request.session['active_urls']['default_url'] = reverse('topmenu:post_review', 
+				kwargs={'category':category})
+			send_message(request, PLIVO_NUMBER, request.session['phone_num'], post_message_2)
+			return HttpResponse(status=200)
+		else:
+			# subject too long, restart posting sequence
+			send_message(request, PLIVO_NUMBER, request.session['phone_num'], subject_error_message)
+			del request.session['default_data']
+			time.sleep(1)
+			request.session['active_urls']['default_url'] = reverse('topmenu:post_subject_request')
+			return HttpResponse(status=200)
 
 @csrf_exempt
 def post_review(request, category):
@@ -241,8 +258,10 @@ def post_review(request, category):
 	("topmenu:post_commit").
 	"""
 	cancellation_message = "Listing cancelled. Returning to main menu."
+	description_error_message = """Description exceeded mac character limit.
+		Please enter a listing description of 140 characters or less."""
 
-	if request.session['default_data'] == '9':
+	if request.session['default_data'].strip() == '9':
 		del request.session['active_urls']['default_url']
 		del request.session['default_data']
 		del request.session['new_post_subject']
@@ -252,22 +271,31 @@ def post_review(request, category):
 		return HttpResponse(status=200)
 
 	else:
-		request.session['new_post_description'] = request.session['default_data'].strip()
-		request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
-		
-		post_message_3 = "Please review your listing."
-		post_message_4 = "Subject: %s" % request.session["new_post_subject"]
-		post_message_5 = "Description: %s" % request.session["new_post_description"]
-		post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
+		if len(request.session['default_data'].strip()) < 141:
+			# descrip correct length
+			request.session['new_post_description'] = request.session['default_data'].strip()
+			request.session["active_urls"]["default_url"] = reverse("topmenu:post_commit", kwargs={'category':category})
+			
+			post_message_3 = "Please review your listing."
+			post_message_4 = "Subject: %s" % request.session["new_post_subject"]
+			post_message_5 = "Description: %s" % request.session["new_post_description"]
+			post_message_6 = "'1' to confirm listing or '9' to delete listing and return to main menu."
 
-		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_3)
-		time.sleep(0.5)
-		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_4)
-		time.sleep(0.5)
-		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_5)
-		time.sleep(0.5)
-		send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_6)
-		return HttpResponse(status=200)
+			send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_3)
+			time.sleep(1)
+			send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_4)
+			time.sleep(1)
+			send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_5)
+			time.sleep(1)
+			send_message(request, PLIVO_NUMBER, request.session["phone_num"], post_message_6)
+			return HttpResponse(status=200)
+		else:
+			# descrip too long
+			send_message(request, PLIVO_NUMBER, request.session['phone_num'], description_error_message)
+			del request.session['default_data']
+			time.sleep(1)
+			request.session['active_urls']['default_url'] = reverse('topmenu:post_subject_request')
+			return HttpResponse(status=200)
 
 @csrf_exempt
 def post_commit(request, category):
