@@ -294,7 +294,8 @@ def deploy():
                 run('virtualenv env')
 
                 # NOTE: Temporary solution: install through running pip remotely
-                run('env/bin/pip install -r requirements/%s.txt' % env.requirements)
+                run('env/bin/pip install pip-accel')
+                run('env/bin/pip-accel install -r requirements/%s.txt' % env.requirements)
                 # NOTE: take it from the settings...
                 run('mkdir assets')
                 # NOTE: can also be run locally
@@ -310,17 +311,3 @@ def deploy():
 
         run('ln -sfn %s current' % timestamp)
         run('supervisorctl start %s' % env.service_name)
-
-
-@configure
-@depends([build])
-@task
-def test():
-    print 'Test'
-
-@task
-def rebuild_db():
-    """Drop and re-sync the app specific tables from the db, load dev fixtures"""
-    local('bin/drop_model')
-    local('./manage.py syncdb')
-    local('./manage.py loaddata tests/fixtures.json')
