@@ -15,7 +15,7 @@ tmp/*
 *.db
 db/
 test_db/
-.vagrant
+
 env/
 assets/*
 debug/*
